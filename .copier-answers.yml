@@ -1,0 +1,15 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.3.7
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: leo.gaskin@le0.gs
+author_name: Leo Gaskin
+has_binder: false
+has_settings: false
+kind: frontend
+labextension_name: jupyter-ruff
+project_short_description: A JupyterLab and Jupyter Notebook extension for formatting
+    code with ruff. Fully client side and respects your local configuration!
+python_name: jupyter_ruff
+repository: https://github.com/leotaku/jupyter-ruff
+test: true
+
