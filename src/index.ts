@@ -16,10 +16,16 @@ import { PathExt } from '@jupyterlab/coreutils';
 import init, { Workspace } from '@astral-sh/ruff-wasm-web';
 import * as toml from 'smol-toml';
 
+/**
+ * Checks whether given cell can be formatted using Ruff.
+ */
 function canBeFormatted(cellModel: ICellModel | undefined): boolean {
   return cellModel?.type === 'code' && cellModel?.mimeType === 'text/x-ipython';
 }
 
+/**
+ * Formats text using the configuration of a workspace.
+ */
 function format(workspace: Workspace, text: string): string {
   try {
     return workspace.format(text).trimEnd();
@@ -28,6 +34,11 @@ function format(workspace: Workspace, text: string): string {
   }
 }
 
+/**
+ * Sets up a {@see Workspace} from the surrounding Ruff config files.
+ *
+ * See: https://docs.astral.sh/ruff/configuration/#config-file-discovery
+ */
 async function workspaceFromEnvironment(
   app: JupyterFrontEnd,
   notebook: NotebookPanel
@@ -55,6 +66,9 @@ async function workspaceFromEnvironment(
   return new Workspace(Workspace.defaultSettings());
 }
 
+/**
+ * Extracts the Ruff config section from a pyproject-like TOML config.
+ */
 function configRuffSection(
   config: Record<string, toml.TomlPrimitive>
 ): toml.TomlPrimitive | undefined {
