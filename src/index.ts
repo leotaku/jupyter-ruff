@@ -21,7 +21,11 @@ function canBeFormatted(cellModel: ICellModel | undefined): boolean {
 }
 
 function format(workspace: Workspace, text: string): string {
-  return workspace.format(text).trimEnd();
+  try {
+    return workspace.format(text).trimEnd();
+  } catch {
+    return text;
+  }
 }
 
 async function workspaceFromEnvironment(
@@ -33,10 +37,10 @@ async function workspaceFromEnvironment(
     directory = PathExt.dirname(directory);
 
     for (const filename of ['.ruff.toml', 'ruff.toml', 'pyproject.toml']) {
-      const contents = await app.serviceManager.contents.get(
-        PathExt.join(directory, filename)
-      );
-      if (!contents) continue;
+      const contents = await app.serviceManager.contents
+        .get(PathExt.join(directory, filename))
+        .catch(() => undefined);
+      if (contents === undefined) continue;
 
       const config = toml.parse(contents.content);
       if (filename === 'pyproject.toml') {
