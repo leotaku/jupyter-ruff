@@ -10,6 +10,7 @@ import {
   NotebookActions,
   NotebookPanel
 } from '@jupyterlab/notebook';
+import { Contents } from '@jupyterlab/services';
 import { ICellModel } from '@jupyterlab/cells';
 import { PathExt } from '@jupyterlab/coreutils';
 
@@ -47,15 +48,18 @@ async function workspaceFromEnvironment(
   do {
     directory = PathExt.dirname(directory);
 
+    const files: Contents.IModel[] = await app.serviceManager.contents
+      .get(directory)
+      .then(it => it.content);
+
     for (const filename of ['.ruff.toml', 'ruff.toml', 'pyproject.toml']) {
-      const contents = await app.serviceManager.contents
-        .get(PathExt.join(directory, filename))
-        .catch(() => undefined);
-      if (contents === undefined) {
+      const file = files.find(it => it.name === filename);
+      if (file === undefined) {
         continue;
       }
 
-      const config = toml.parse(contents.content);
+      const fileWithContents = await app.serviceManager.contents.get(file.path);
+      const config = toml.parse(fileWithContents.content);
       if (filename === 'pyproject.toml') {
         const ruffSection = configRuffSection(config);
         if (ruffSection !== undefined) {
