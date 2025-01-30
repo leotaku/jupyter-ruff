@@ -6,7 +6,7 @@ import {
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import { ICommandPalette } from '@jupyterlab/apputils';
 import {
-  INotebookTools,
+  INotebookTracker,
   NotebookActions,
   NotebookPanel
 } from '@jupyterlab/notebook';
@@ -70,28 +70,30 @@ const plugin: JupyterFrontEndPlugin<void> = {
   description:
     'A JupyterLab and Jupyter Notebook extension for formatting code with Ruff.',
   autoStart: true,
-  requires: [ICommandPalette, INotebookTools],
+  requires: [ICommandPalette, INotebookTracker],
   activate: async (
     app: JupyterFrontEnd,
     palette: ICommandPalette,
-    tools: INotebookTools
+    tracker: INotebookTracker
   ) => {
     await init();
 
-    async function getWorkspace(): Promise<Workspace> {
-      return workspaceFromEnvironment(app, tools.activeNotebookPanel!);
-    }
+    let workspace = new Workspace(Workspace.defaultSettings());
+
+    tracker.currentChanged.connect(async (_, panel) => {
+      workspace = await workspaceFromEnvironment(app, panel!);
+    });
 
     app.commands.addCommand('jupyter-ruff:format-cell', {
       label: 'Format Cell Using Ruff',
-      isEnabled: () => canBeFormatted(tools.activeCell?.model),
+      isEnabled: () => canBeFormatted(tracker.activeCell?.model),
       isVisible: () => true,
-      execute: async function (_args: ReadonlyPartialJSONObject) {
+      execute: function (_args: ReadonlyPartialJSONObject) {
         const formatted = format(
-          await getWorkspace(),
-          tools.activeCell?.model.sharedModel.source!
+          workspace,
+          tracker.activeCell?.model.sharedModel.source!
         );
-        tools.activeCell?.model.sharedModel.setSource(formatted);
+        tracker.activeCell?.model.sharedModel.setSource(formatted);
       }
     });
 
@@ -99,29 +101,23 @@ const plugin: JupyterFrontEndPlugin<void> = {
       label: 'Format All Cells Using Ruff',
       isEnabled: () => true,
       isVisible: () => true,
-      execute: async function (_args: ReadonlyPartialJSONObject) {
-        const cells = tools.activeNotebookPanel?.content.model?.cells || [];
+      execute: function (_args: ReadonlyPartialJSONObject) {
+        const cells = tracker.currentWidget?.content.model?.cells || [];
         for (const cell of cells) {
           if (!canBeFormatted(cell)) continue;
 
-          const formatted = format(
-            await getWorkspace(),
-            cell.sharedModel.source!
-          );
+          const formatted = format(workspace, cell.sharedModel.source!);
           cell.sharedModel.setSource(formatted);
         }
       }
     });
 
     let autoFormatToggle = false;
-    NotebookActions.executionScheduled.connect(async (_, { cell }) => {
+    NotebookActions.executionScheduled.connect((_, { cell }) => {
       if (!autoFormatToggle) return;
       if (!canBeFormatted(cell.model)) return;
 
-      const formatted = format(
-        await getWorkspace(),
-        cell.model.sharedModel.source!
-      );
+      const formatted = format(workspace, cell.model.sharedModel.source!);
       cell.model.sharedModel.setSource(formatted);
     });
 
