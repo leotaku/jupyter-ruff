@@ -1,4 +1,4 @@
-# jupyter_ruff
+# jupyter-ruff
 
 [![Github Actions Status](https://github.com/leotaku/jupyter-ruff/workflows/Build/badge.svg)](https://github.com/leotaku/jupyter-ruff/actions/workflows/build.yml)
 
@@ -16,7 +16,7 @@ One of the following:
 To install the extension, execute:
 
 ```bash
-pip install jupyter_ruff
+pip install jupyter-ruff
 ```
 
 ## Uninstall
@@ -24,7 +24,7 @@ pip install jupyter_ruff
 To remove the extension, execute:
 
 ```bash
-pip uninstall jupyter_ruff
+pip uninstall jupyter-ruff
 ```
 
 ## Contributing
@@ -68,7 +68,7 @@ jupyter lab build --minimize=False
 ### Development uninstall
 
 ```bash
-pip uninstall jupyter_ruff
+pip uninstall jupyter-ruff
 ```
 
 In development mode, you will also need to remove the symlink created by `jupyter labextension develop`

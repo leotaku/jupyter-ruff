@@ -1,5 +1,5 @@
 {
   "packageManager": "python",
-  "packageName": "jupyter_ruff",
+  "packageName": "jupyter-ruff",
   "uninstallInstructions": "Use your Python package manager (pip, conda, etc.) to uninstall the package jupyter_ruff"
 }
