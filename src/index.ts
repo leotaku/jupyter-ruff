@@ -63,7 +63,8 @@ function configRuffSection(
  */
 const plugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyter-ruff:plugin',
-  description: 'A JupyterLab and Jupyter Notebook extension for formatting code with ruff. Fully client side and respects your local configuration!',
+  description:
+    'A JupyterLab and Jupyter Notebook extension for formatting code with Ruff.',
   autoStart: true,
   requires: [ICommandPalette, INotebookTools],
   activate: async (

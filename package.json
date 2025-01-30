@@ -1,7 +1,7 @@
 {
     "name": "jupyter-ruff",
     "version": "0.1.0",
-    "description": "A JupyterLab and Jupyter Notebook extension for formatting code with ruff. Fully client side and respects your local configuration!",
+    "description": "A JupyterLab and Jupyter Notebook extension for formatting code with Ruff.",
     "keywords": [
         "jupyter",
         "jupyterlab",

@@ -2,7 +2,7 @@
 
 [![Github Actions Status](https://github.com/leotaku/jupyter-ruff/workflows/Build/badge.svg)](https://github.com/leotaku/jupyter-ruff/actions/workflows/build.yml)
 
-A JupyterLab and Jupyter Notebook extension for formatting code with ruff. Fully client side and respects your local configuration!
+A JupyterLab and Jupyter Notebook extension for formatting code with Ruff.
 
 ## Requirements
 
