@@ -51,12 +51,16 @@ async function workspaceFromEnvironment(
       const contents = await app.serviceManager.contents
         .get(PathExt.join(directory, filename))
         .catch(() => undefined);
-      if (contents === undefined) continue;
+      if (contents === undefined) {
+        continue;
+      }
 
       const config = toml.parse(contents.content);
       if (filename === 'pyproject.toml') {
         const ruffSection = configRuffSection(config);
-        if (ruffSection !== undefined) return new Workspace(config);
+        if (ruffSection !== undefined) {
+          return new Workspace(config);
+        }
       } else {
         return new Workspace(config);
       }
@@ -72,7 +76,9 @@ async function workspaceFromEnvironment(
 function configRuffSection(
   config: Record<string, toml.TomlPrimitive>
 ): toml.TomlPrimitive | undefined {
-  if (!(config['tool'] instanceof Object)) return false;
+  if (!(config['tool'] instanceof Object)) {
+    return false;
+  }
   return (config['tool'] as Record<string, toml.TomlPrimitive>)['ruff'];
 }
 
@@ -105,7 +111,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       execute: function (_args: ReadonlyPartialJSONObject) {
         const formatted = format(
           workspace,
-          tracker.activeCell?.model.sharedModel.source!
+          tracker.activeCell!.model.sharedModel.source
         );
         tracker.activeCell?.model.sharedModel.setSource(formatted);
       }
@@ -118,7 +124,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
       execute: function (_args: ReadonlyPartialJSONObject) {
         const cells = tracker.currentWidget?.content.model?.cells || [];
         for (const cell of cells) {
-          if (!canBeFormatted(cell)) continue;
+          if (!canBeFormatted(cell)) {
+            continue;
+          }
 
           const formatted = format(workspace, cell.sharedModel.source!);
           cell.sharedModel.setSource(formatted);
@@ -128,8 +136,12 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     let autoFormatToggle = false;
     NotebookActions.executionScheduled.connect((_, { cell }) => {
-      if (!autoFormatToggle) return;
-      if (!canBeFormatted(cell.model)) return;
+      if (!autoFormatToggle) {
+        return;
+      }
+      if (!canBeFormatted(cell.model)) {
+        return;
+      }
 
       const formatted = format(workspace, cell.model.sharedModel.source!);
       cell.model.sharedModel.setSource(formatted);
