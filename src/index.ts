@@ -83,7 +83,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     }
 
     app.commands.addCommand('jupyter-ruff:format-cell', {
-      label: 'Format cell using Ruff',
+      label: 'Format Cell Using Ruff',
       isEnabled: () => canBeFormatted(tools.activeCell?.model),
       isVisible: () => true,
       execute: async function (_args: ReadonlyPartialJSONObject) {
@@ -96,7 +96,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     });
 
     app.commands.addCommand('jupyter-ruff:format-all-cells', {
-      label: 'Format all cells using Ruff',
+      label: 'Format All Cells Using Ruff',
       isEnabled: () => true,
       isVisible: () => true,
       execute: async function (_args: ReadonlyPartialJSONObject) {
@@ -126,7 +126,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     });
 
     app.commands.addCommand('jupyter-ruff:toggle-auto-format', {
-      label: 'Toggle auto-formatting of cells using Ruff',
+      label: 'Toggle Automatic Formatting Using Ruff',
       isEnabled: () => true,
       isVisible: () => true,
       isToggleable: true,
