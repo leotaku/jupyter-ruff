@@ -1,0 +1,15 @@
+{
+  "title": "Jupyter Ruff",
+  "description": "Settings for the jupyter-ruff extension.",
+  "jupyter.lab.menus": {
+    "context": [
+      {
+        "command": "jupyter-ruff:format-cell",
+        "selector": ".jp-CodeCell",
+        "rank": 999
+      }
+    ]
+  },
+  "additionalProperties": false,
+  "type": "object"
+}

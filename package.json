@@ -97,7 +97,8 @@
     },
     "jupyterlab": {
         "extension": true,
-        "outputDir": "jupyter_ruff/labextension"
+        "outputDir": "jupyter_ruff/labextension",
+        "schemaDir": "schema"
     },
     "eslintIgnore": [
         "node_modules",
