@@ -6,7 +6,10 @@ A JupyterLab and Jupyter Notebook extension for formatting code with Ruff.
 
 ## Requirements
 
+One of the following:
+
 - JupyterLab >= 4.0.0
+- Jupyter Notebook >= 7.0.0
 
 ## Install
 
