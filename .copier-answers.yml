@@ -3,7 +3,7 @@ _commit: v4.3.7
 _src_path: https://github.com/jupyterlab/extension-template
 author_email: leo.gaskin@le0.gs
 author_name: Leo Gaskin
-has_binder: false
+has_binder: true
 has_settings: false
 kind: frontend
 labextension_name: jupyter-ruff

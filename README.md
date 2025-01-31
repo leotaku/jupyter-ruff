@@ -1,6 +1,7 @@
 # jupyter-ruff
 
 [![Github Actions Status](https://github.com/leotaku/jupyter-ruff/workflows/Build/badge.svg)](https://github.com/leotaku/jupyter-ruff/actions/workflows/build.yml)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/leotaku/jupyter-ruff/master?urlpath=lab)
 
 A JupyterLab and Jupyter Notebook extension for formatting code with Ruff.
 
