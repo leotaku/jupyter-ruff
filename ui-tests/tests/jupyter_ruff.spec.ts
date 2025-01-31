@@ -1,21 +1,11 @@
 import { expect, test } from '@jupyterlab/galata';
 
-/**
- * Don't load JupyterLab webpage before running the tests.
- * This is required to ensure we capture all log messages.
- */
-test.use({ autoGoto: false });
-
-test('should emit an activation console message', async ({ page }) => {
-  const logs: string[] = [];
-
-  page.on('console', message => {
-    logs.push(message.text());
+test('should format the only existing cell', async ({ page }) => {
+  await page.notebook.createNew('Test.ipynb', { kernel: 'python3' });
+  await page.notebook.setCell(0, 'code', 'a  =  1+1');
+  await page.evaluate(async () => {
+    await window.jupyterapp.commands.execute('jupyter-ruff:format-cell');
   });
 
-  await page.goto();
-
-  expect(
-    logs.filter(s => s === 'JupyterLab extension jupyter-ruff is activated!')
-  ).toHaveLength(1);
+  expect(await page.notebook.getCellTextInput(0)).toBe('a = 1 + 1');
 });
