@@ -12,8 +12,21 @@ const test = base.extend<{ notebook: NotebookHelper }>({
   ]
 });
 
+async function setCellNonFlaky(
+  notebook: NotebookHelper,
+  index: number,
+  source: string
+): Promise<void> {
+  const locator = await notebook.getCellLocator(index);
+  const textbox = locator!.getByRole('textbox');
+
+  await notebook.enterCellEditingMode(index);
+  await textbox.fill(source);
+  await notebook.leaveCellEditingMode(index);
+}
+
 test('should format the only existing cell', async ({ notebook }) => {
-  await notebook.setCell(0, 'code', `a  =  1+1`);
+  await setCellNonFlaky(notebook, 0, `a  =  1+1`);
   await notebook.page.evaluate(async () => {
     await window.jupyterapp.commands.execute('jupyter-ruff:format-cell');
   });
@@ -38,7 +51,7 @@ test('should respect configuration files', async ({ notebook, tmpPath }) => {
     path.join(tmpPath, 'ruff.toml')
   );
 
-  await notebook.setCell(0, 'code', fourIndentedCode);
+  await setCellNonFlaky(notebook, 0, fourIndentedCode);
   await notebook.page.evaluate(async () => {
     await window.jupyterapp.commands.execute(
       'jupyter-ruff:reload-configuration'
