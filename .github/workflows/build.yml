@@ -12,6 +12,7 @@ concurrency:
 
 jobs:
   build:
+    name: Build
     runs-on: ubuntu-latest
 
     steps:
@@ -60,6 +61,7 @@ jobs:
         if-no-files-found: error
 
   test_isolated:
+    name: Isolated tests
     needs: build
     runs-on: ubuntu-latest
 
@@ -86,7 +88,7 @@ jobs:
         jupyter labextension list 2>&1 | grep -ie "jupyter-ruff.*OK"
         python -m jupyterlab.browser_check --no-browser-test
 
-  integration-tests:
+  integration_tests:
     name: Integration tests
     needs: build
     runs-on: ubuntu-latest
