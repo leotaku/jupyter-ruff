@@ -8,7 +8,7 @@ has_settings: false
 kind: frontend
 labextension_name: jupyter-ruff
 project_short_description: A JupyterLab and Jupyter Notebook extension for formatting
-    code with ruff. Fully client side and respects your local configuration!
+    code with Ruff.
 python_name: jupyter_ruff
 repository: https://github.com/leotaku/jupyter-ruff
 test: true
