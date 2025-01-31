@@ -1,9 +1,9 @@
 /**
- * Example of [Jest](https://jestjs.io/docs/getting-started) unit tests
+ * [Jest](https://jestjs.io/docs/getting-started) unit tests
  */
 
 describe('jupyter-ruff', () => {
-  it('should be tested', () => {
-    expect(1 + 1).toEqual(2);
+  it('should not have real tests', () => {
+    expect(true).toBeTruthy();
   });
 });
