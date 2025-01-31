@@ -56,7 +56,7 @@
         "watch:labextension": "jupyter labextension watch ."
     },
     "dependencies": {
-        "@astral-sh/ruff-wasm-web": "^0.9.3",
+        "@astral-sh/ruff-wasm-web": "^0.9.4",
         "@jupyterlab/application": "^4.0.0",
         "smol-toml": "^1.3.1"
     },
