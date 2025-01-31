@@ -1,6 +1,8 @@
 # jupyter-ruff
 
-[![Github Actions Status](https://github.com/leotaku/jupyter-ruff/workflows/Build/badge.svg)](https://github.com/leotaku/jupyter-ruff/actions/workflows/build.yml)
+[![PyPI Version](https://img.shields.io/pypi/v/jupyter-ruff)](https://pypi.org/project/jupyter-ruff/)
+[![NPM Version](https://img.shields.io/npm/v/jupyter-ruff)](https://www.npmjs.com/package/jupyter-ruff)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/leotaku/jupyter-ruff/build.yml?logo=github&label=ci)](https://github.com/leotaku/jupyter-ruff/actions/workflows/build.yml)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/leotaku/jupyter-ruff/master?urlpath=lab)
 
 A JupyterLab and Jupyter Notebook extension for formatting code with Ruff.
