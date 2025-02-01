@@ -11,6 +11,7 @@ import {
   NotebookPanel
 } from '@jupyterlab/notebook';
 import { Contents } from '@jupyterlab/services';
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { ICellModel } from '@jupyterlab/cells';
 import { PathExt } from '@jupyterlab/coreutils';
 
@@ -94,13 +95,28 @@ const plugin: JupyterFrontEndPlugin<void> = {
   description:
     'A JupyterLab and Jupyter Notebook extension for formatting code with Ruff.',
   autoStart: true,
-  requires: [ICommandPalette, INotebookTracker],
+  requires: [ICommandPalette, INotebookTracker, ISettingRegistry],
   activate: async (
     app: JupyterFrontEnd,
     palette: ICommandPalette,
-    tracker: INotebookTracker
+    tracker: INotebookTracker,
+    registry: ISettingRegistry
   ) => {
     await init();
+
+    const settings = await registry.load('jupyter-ruff:plugin');
+
+    let [autoFormatRunToggle, autoFormatSaveToggle, isortToggle] = [
+      settings.get('format-on-run').composite as boolean,
+      settings.get('format-on-save').composite as boolean,
+    ];
+
+    settings.changed.connect((settings, _) => {
+      [autoFormatRunToggle, autoFormatSaveToggle, isortToggle] = [
+        settings.get('format-on-run').composite as boolean,
+        settings.get('format-on-save').composite as boolean,
+      ];
+    });
 
     let workspace = new Workspace(Workspace.defaultSettings());
 
@@ -138,7 +154,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
       }
     });
 
-    let autoFormatToggle = false;
     NotebookActions.executionScheduled.connect((_, { cell }) => {
       if (!autoFormatRunToggle) {
         return;
@@ -151,18 +166,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
       cell.model.sharedModel.setSource(formatted);
     });
 
-    app.commands.addCommand('jupyter-ruff:toggle-format-on-run', {
-      label: 'Toggle Formatting on Run Using Ruff',
-      isEnabled: () => true,
-      isVisible: () => true,
-      isToggleable: true,
-      isToggled: () => autoFormatRunToggle,
-      execute: function (_args: ReadonlyPartialJSONObject) {
-        autoFormatRunToggle = !autoFormatRunToggle;
-      }
-    });
-
-    let autoFormatSaveToggle = false;
     tracker.currentChanged.connect(async (_, panel) => {
       panel?.context.saveState.connect((context, state) => {
         if (!autoFormatSaveToggle) {
@@ -183,17 +186,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
       });
     });
 
-    app.commands.addCommand('jupyter-ruff:toggle-format-on-save', {
-      label: 'Toggle Formatting on Save Using Ruff',
-      isEnabled: () => true,
-      isVisible: () => true,
-      isToggleable: true,
-      isToggled: () => autoFormatSaveToggle,
-      execute: function (_args: ReadonlyPartialJSONObject) {
-        autoFormatSaveToggle = !autoFormatSaveToggle;
-      }
-    });
-
     app.commands.addCommand('jupyter-ruff:reload-configuration', {
       label: 'Reload On-Disk Configuration Files for Ruff',
       isEnabled: () => true,
@@ -209,14 +201,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
     });
     palette.addItem({
       command: 'jupyter-ruff:format-all-cells',
-      category: 'ruff'
-    });
-    palette.addItem({
-      command: 'jupyter-ruff:toggle-format-on-run',
-      category: 'ruff'
-    });
-    palette.addItem({
-      command: 'jupyter-ruff:toggle-format-on-save',
       category: 'ruff'
     });
     palette.addItem({

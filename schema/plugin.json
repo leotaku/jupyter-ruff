@@ -10,6 +10,20 @@
       }
     ]
   },
+  "properties": {
+    "format-on-run": {
+      "type": "boolean",
+      "title": "Format on Run",
+      "description": "Format code cells when they are run.",
+      "default": false
+    },
+    "format-on-save": {
+      "type": "boolean",
+      "title": "Format on Save",
+      "description": "Format all code cells when the notebook is saved.",
+      "default": false
+    }
+  },
   "additionalProperties": false,
   "type": "object"
 }
