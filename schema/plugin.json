@@ -2,6 +2,21 @@
   "title": "Jupyter Ruff",
   "description": "Settings for the jupyter-ruff extension.",
   "jupyter.lab.menus": {
+    "main": [
+      {
+        "id": "jp-mainmenu-edit",
+        "items": [
+          {
+            "command": "jupyter-ruff:format-cell",
+            "rank": 500
+          },
+          {
+            "command": "jupyter-ruff:format-all-cells",
+            "rank": 500
+          }
+        ]
+      }
+    ],
     "context": [
       {
         "command": "jupyter-ruff:format-cell",
