@@ -123,7 +123,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     app.commands.addCommand('jupyter-ruff:format-all-cells', {
       label: 'Format All Cells Using Ruff',
-      isEnabled: () => true,
+      isEnabled: () => tracker.currentWidget !== null,
       isVisible: () => true,
       execute: function (_args: ReadonlyPartialJSONObject) {
         const cells = tracker.currentWidget?.content.model?.cells || [];
