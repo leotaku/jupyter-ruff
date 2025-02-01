@@ -19,6 +19,19 @@ import init, { Workspace } from '@astral-sh/ruff-wasm-web';
 import * as toml from 'smol-toml';
 
 /**
+ * Checks wether a notebook is currently selected.
+ */
+function isNotebookSelected(
+  tracker: INotebookTracker,
+  shell: JupyterFrontEnd.IShell
+): boolean {
+  return (
+    tracker.currentWidget !== null &&
+    tracker.currentWidget === shell.currentWidget
+  );
+}
+
+/**
  * Checks whether given cell can be formatted using Ruff.
  */
 function canBeFormatted(cellModel: ICellModel | undefined): boolean {
@@ -126,7 +139,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     app.commands.addCommand('jupyter-ruff:format-cell', {
       label: 'Format Cell Using Ruff',
-      isEnabled: () => canBeFormatted(tracker.activeCell?.model),
+      isEnabled: () =>
+        isNotebookSelected(tracker, app.shell) &&
+        canBeFormatted(tracker.activeCell?.model),
       isVisible: () => true,
       execute: function (_args: ReadonlyPartialJSONObject) {
         const formatted = format(
@@ -139,7 +154,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     app.commands.addCommand('jupyter-ruff:format-all-cells', {
       label: 'Format All Cells Using Ruff',
-      isEnabled: () => tracker.currentWidget !== null,
+      isEnabled: () => isNotebookSelected(tracker, app.shell),
       isVisible: () => true,
       execute: function (_args: ReadonlyPartialJSONObject) {
         const cells = tracker.currentWidget?.content.model?.cells || [];
