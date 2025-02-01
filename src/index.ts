@@ -234,7 +234,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       isEnabled: () => isNotebookSelected(tracker, app.shell),
       isVisible: () => true,
       execute: function (_args: ReadonlyPartialJSONObject) {
-        const cells = tracker.currentWidget?.content.model?.cells || [];
+        const cells = tracker.currentWidget?.content.model?.cells ?? [];
         for (const cell of cells) {
           if (!canBeFormatted(cell)) {
             continue;
