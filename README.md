@@ -17,7 +17,7 @@ One of the following:
 ## Usage
 
 An interactive environment to try out this extension is available on [Binder](https://mybinder.org/v2/gh/leotaku/jupyter-ruff/master?urlpath=%2Fdoc%2Ftree%2Fbinder%2FDemo.ipynb).
-Alternatively, learn how to use this extension by reading the [`Demo.ipynb`](./binder/Demo.ipynb) notebook.
+Alternatively, learn how to use this extension by reading the [`Demo.ipynb`](https://github.com/leotaku/jupyter-ruff/blob/master/binder/Demo.ipynb) notebook.
 
 If you are familiar with [`nb_black`](https://github.com/dnanhkhoa/nb_black), this extension can provide a similar mode of operation where cells are formatted as they are executed.
 However, you also have the option to just format cells using menus, the command palette, or format on save.
@@ -43,4 +43,4 @@ Alternatively, you can also use the builtin JupyterLab extension manager to inst
 ## Contributing
 
 All good-faith contributions are welcome!
-Please read [CONTRIBUTING](./CONTRIBUTING.md) for information on how to set up a development environment and perform common development tasks.
+Please read [CONTRIBUTING](https://github.com/leotaku/jupyter-ruff/blob/master/CONTRIBUTING.md) for information on how to set up a development environment and perform common development tasks.
