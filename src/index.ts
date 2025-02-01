@@ -155,33 +155,31 @@ const plugin: JupyterFrontEndPlugin<void> = {
     });
 
     NotebookActions.executionScheduled.connect((_, { cell }) => {
-      if (!autoFormatRunToggle) {
-        return;
-      }
       if (!canBeFormatted(cell.model)) {
         return;
       }
 
-      const formatted = format(workspace, cell.model.sharedModel.source!);
-      cell.model.sharedModel.setSource(formatted);
+      if (autoFormatRunToggle) {
+        const formatted = format(workspace, cell.model.sharedModel.source!);
+        cell.model.sharedModel.setSource(formatted);
+      }
     });
 
     tracker.currentChanged.connect(async (_, panel) => {
       panel?.context.saveState.connect((context, state) => {
-        if (!autoFormatSaveToggle) {
-          return;
-        }
         if (state !== 'started') {
           return;
         }
 
-        for (const cell of context.model.cells) {
-          if (!canBeFormatted(cell)) {
-            continue;
-          }
+        if (autoFormatSaveToggle) {
+          for (const cell of context.model.cells) {
+            if (!canBeFormatted(cell)) {
+              continue;
+            }
 
-          const formatted = format(workspace, cell.sharedModel.source!);
-          cell.sharedModel.setSource(formatted);
+            const formatted = format(workspace, cell.sharedModel.source!);
+            cell.sharedModel.setSource(formatted);
+          }
         }
       });
     });
