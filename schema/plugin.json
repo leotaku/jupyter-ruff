@@ -22,6 +22,12 @@
       "title": "Format on Save",
       "description": "Format all code cells when the notebook is saved.",
       "default": false
+    },
+    "sort-imports": {
+      "type": "boolean",
+      "title": "Sort Imports",
+      "description": "Also sort imports when formatting code.",
+      "default": true
     }
   },
   "additionalProperties": false,

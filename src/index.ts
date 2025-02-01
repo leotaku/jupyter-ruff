@@ -15,8 +15,36 @@ import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { ICellModel } from '@jupyterlab/cells';
 import { PathExt } from '@jupyterlab/coreutils';
 
-import init, { Workspace } from '@astral-sh/ruff-wasm-web';
+import init, { Workspace, type Diagnostic } from '@astral-sh/ruff-wasm-web';
 import * as toml from 'smol-toml';
+
+/**
+ * A class to convert row and column text positions into offsets.
+ */
+class LocationMapper {
+  private indices: number[];
+
+  constructor(text: string) {
+    this.indices = [];
+
+    const lines = text.split('\n');
+    let offset = 0;
+    for (const line of lines) {
+      offset += line.length + 1;
+      this.indices.push(offset);
+    }
+  }
+
+  maxPosition(): number {
+    return this.indices.at(this.indices.length - 1) ?? 0;
+  }
+
+  convert(row: number, column: number): number {
+    const [zeroRow, zeroColumn] = [row - 1, column - 1];
+    const startOffset = zeroRow > 0 ? this.indices[zeroRow - 1] : 0;
+    return startOffset + zeroColumn;
+  }
+}
 
 /**
  * Checks wether a notebook is currently selected.
@@ -36,6 +64,47 @@ function isNotebookSelected(
  */
 function canBeFormatted(cellModel: ICellModel | undefined): boolean {
   return cellModel?.type === 'code' && cellModel?.mimeType === 'text/x-ipython';
+}
+
+/**
+ * Applies {@see Diagnostic} fixes to text.
+ */
+function applyFixes(text: string, diagnostics: Diagnostic[]): string {
+  const loc = new LocationMapper(text);
+  let prevMinPosition = loc.maxPosition();
+  const result = [];
+
+  for (const diagnostic of diagnostics.reverse()) {
+    for (const edit of diagnostic.fix?.edits.reverse() ?? []) {
+      const [minPosition, maxPosition] = [
+        loc.convert(edit.location.row, edit.location.column),
+        loc.convert(edit.end_location.row, edit.end_location.column)
+      ];
+
+      result.push(text.slice(maxPosition, prevMinPosition));
+      result.push(edit.content);
+
+      prevMinPosition = minPosition;
+    }
+  }
+
+  result.push(text.slice(0, prevMinPosition));
+
+  return result.reverse().join('');
+}
+
+/**
+ * Fixes text using the configuration of a workspace.
+ */
+function fix(workspace: Workspace, text: string): string {
+  let diagnostics: Diagnostic[];
+  try {
+    diagnostics = workspace.check(text);
+  } catch {
+    return text;
+  }
+
+  return applyFixes(text, diagnostics);
 }
 
 /**
@@ -122,12 +191,14 @@ const plugin: JupyterFrontEndPlugin<void> = {
     let [autoFormatRunToggle, autoFormatSaveToggle, isortToggle] = [
       settings.get('format-on-run').composite as boolean,
       settings.get('format-on-save').composite as boolean,
+      settings.get('sort-imports').composite as boolean
     ];
 
     settings.changed.connect((settings, _) => {
       [autoFormatRunToggle, autoFormatSaveToggle, isortToggle] = [
         settings.get('format-on-run').composite as boolean,
         settings.get('format-on-save').composite as boolean,
+        settings.get('sort-imports').composite as boolean
       ];
     });
 
@@ -137,6 +208,13 @@ const plugin: JupyterFrontEndPlugin<void> = {
       workspace = await workspaceFromEnvironment(app, panel!);
     });
 
+    const isortWorkspace = new Workspace({ select: ['I'] });
+
+    function isortAndFormat(text: string): string {
+      const isorted = isortToggle ? fix(isortWorkspace, text) : text;
+      return format(workspace, isorted);
+    }
+
     app.commands.addCommand('jupyter-ruff:format-cell', {
       label: 'Format Cell Using Ruff',
       isEnabled: () =>
@@ -144,8 +222,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         canBeFormatted(tracker.activeCell?.model),
       isVisible: () => true,
       execute: function (_args: ReadonlyPartialJSONObject) {
-        const formatted = format(
-          workspace,
+        const formatted = isortAndFormat(
           tracker.activeCell!.model.sharedModel.source
         );
         tracker.activeCell?.model.sharedModel.setSource(formatted);
@@ -163,7 +240,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
             continue;
           }
 
-          const formatted = format(workspace, cell.sharedModel.source!);
+          const formatted = isortAndFormat(cell.sharedModel.source!);
           cell.sharedModel.setSource(formatted);
         }
       }
@@ -197,7 +274,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       }
 
       if (autoFormatRunToggle) {
-        const formatted = format(workspace, cell.model.sharedModel.source!);
+        const formatted = isortAndFormat(cell.model.sharedModel.source!);
         cell.model.sharedModel.setSource(formatted);
       }
     });
@@ -214,7 +291,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
               continue;
             }
 
-            const formatted = format(workspace, cell.sharedModel.source!);
+            const formatted = isortAndFormat(cell.sharedModel.source!);
             cell.sharedModel.setSource(formatted);
           }
         }
