@@ -140,7 +140,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     let autoFormatToggle = false;
     NotebookActions.executionScheduled.connect((_, { cell }) => {
-      if (!autoFormatToggle) {
+      if (!autoFormatRunToggle) {
         return;
       }
       if (!canBeFormatted(cell.model)) {
@@ -151,14 +151,46 @@ const plugin: JupyterFrontEndPlugin<void> = {
       cell.model.sharedModel.setSource(formatted);
     });
 
-    app.commands.addCommand('jupyter-ruff:toggle-auto-format', {
-      label: 'Toggle Automatic Formatting Using Ruff',
+    app.commands.addCommand('jupyter-ruff:toggle-format-on-run', {
+      label: 'Toggle Formatting on Run Using Ruff',
       isEnabled: () => true,
       isVisible: () => true,
       isToggleable: true,
-      isToggled: () => autoFormatToggle,
+      isToggled: () => autoFormatRunToggle,
       execute: function (_args: ReadonlyPartialJSONObject) {
-        autoFormatToggle = !autoFormatToggle;
+        autoFormatRunToggle = !autoFormatRunToggle;
+      }
+    });
+
+    let autoFormatSaveToggle = false;
+    tracker.currentChanged.connect(async (_, panel) => {
+      panel?.context.saveState.connect((context, state) => {
+        if (!autoFormatSaveToggle) {
+          return;
+        }
+        if (state !== 'started') {
+          return;
+        }
+
+        for (const cell of context.model.cells) {
+          if (!canBeFormatted(cell)) {
+            continue;
+          }
+
+          const formatted = format(workspace, cell.sharedModel.source!);
+          cell.sharedModel.setSource(formatted);
+        }
+      });
+    });
+
+    app.commands.addCommand('jupyter-ruff:toggle-format-on-save', {
+      label: 'Toggle Formatting on Save Using Ruff',
+      isEnabled: () => true,
+      isVisible: () => true,
+      isToggleable: true,
+      isToggled: () => autoFormatSaveToggle,
+      execute: function (_args: ReadonlyPartialJSONObject) {
+        autoFormatSaveToggle = !autoFormatSaveToggle;
       }
     });
 
@@ -180,7 +212,11 @@ const plugin: JupyterFrontEndPlugin<void> = {
       category: 'ruff'
     });
     palette.addItem({
-      command: 'jupyter-ruff:toggle-auto-format',
+      command: 'jupyter-ruff:toggle-format-on-run',
+      category: 'ruff'
+    });
+    palette.addItem({
+      command: 'jupyter-ruff:toggle-format-on-save',
       category: 'ruff'
     });
     palette.addItem({
