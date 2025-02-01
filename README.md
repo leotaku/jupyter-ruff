@@ -14,6 +14,16 @@ One of the following:
 - JupyterLab >= 4.0.0
 - Jupyter Notebook >= 7.0.0
 
+## Usage
+
+An interactive environment to try out this extension is available on [Binder](https://mybinder.org/v2/gh/leotaku/jupyter-ruff/master?urlpath=%2Fdoc%2Ftree%2Fbinder%2FDemo.ipynb).
+Alternatively, learn how to use this extension by reading the [`Demo.ipynb`](./binder/Demo.ipynb) notebook.
+
+If you are familiar with [`nb_black`](https://github.com/dnanhkhoa/nb_black), this extension can provide a similar mode of operation where cells are formatted as they are executed.
+However, you also have the option to just format cells using menus, the command palette, or format on save.
+
+You may also consult the [Ruff documentation](https://docs.astral.sh/ruff/formatter/) to learn about the underlying formatting rules.
+
 ## Install
 
 To install the extension, execute:
@@ -22,13 +32,13 @@ To install the extension, execute:
 pip install jupyter-ruff
 ```
 
-## Uninstall
-
 To remove the extension, execute:
 
 ```bash
 pip uninstall jupyter-ruff
 ```
+
+Alternatively, you can also use the builtin JupyterLab extension manager to install the extension.
 
 ## Contributing
 
@@ -36,9 +46,8 @@ pip uninstall jupyter-ruff
 
 Note: You will need NodeJS to build the extension package.
 
-The `jlpm` command is JupyterLab's pinned version of
-[yarn](https://yarnpkg.com/) that is installed with JupyterLab. You may use
-`yarn` or `npm` in lieu of `jlpm` below.
+The `jlpm` command is JupyterLab's pinned version of [yarn](https://yarnpkg.com/) that is installed with JupyterLab.
+You may use `yarn` or `npm` in lieu of `jlpm` below.
 
 ```bash
 # Clone the repo to your local environment
@@ -100,4 +109,5 @@ More information are provided within the [ui-tests](./ui-tests/README.md) README
 
 ### Packaging the extension
 
-See [RELEASE](RELEASE.md)
+This extension uses [Jupyter Releaser](https://jupyter-releaser.readthedocs.io/) for uploading the package to various repositories.
+See [RELEASE](RELEASE.md) for more detailed documentation.
