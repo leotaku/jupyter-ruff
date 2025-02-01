@@ -125,7 +125,8 @@ function format(workspace: Workspace, text: string): string {
  */
 async function workspaceFromEnvironment(
   app: JupyterFrontEnd,
-  notebook: NotebookPanel
+  notebook: NotebookPanel,
+  overrides: Record<string, toml.TomlPrimitive>
 ): Promise<Workspace> {
   let directory = notebook.context.path;
   do {
@@ -146,15 +147,15 @@ async function workspaceFromEnvironment(
       if (filename === 'pyproject.toml') {
         const ruffSection = configRuffSection(config);
         if (ruffSection !== undefined) {
-          return new Workspace(config);
+          return new Workspace({ ...config, ...overrides });
         }
       } else {
-        return new Workspace(config);
+        return new Workspace({ ...config, ...overrides });
       }
     }
   } while (directory !== '');
 
-  return new Workspace(Workspace.defaultSettings());
+  return new Workspace(overrides);
 }
 
 /**
@@ -202,16 +203,18 @@ const plugin: JupyterFrontEndPlugin<void> = {
       ];
     });
 
-    let workspace = new Workspace(Workspace.defaultSettings());
+    // Override workspace to only emit isort diagnostics, so it can
+    // emit fixable diagnostics while respecting Ruff settings.
+    const overrides = { select: ['I'] };
+
+    let workspace = new Workspace(overrides);
 
     tracker.currentChanged.connect(async (_, panel) => {
-      workspace = await workspaceFromEnvironment(app, panel!);
+      workspace = await workspaceFromEnvironment(app, panel!, overrides);
     });
 
-    const isortWorkspace = new Workspace({ select: ['I'] });
-
     function isortAndFormat(text: string): string {
-      const isorted = isortToggle ? fix(isortWorkspace, text) : text;
+      const isorted = isortToggle ? fix(workspace, text) : text;
       return format(workspace, isorted);
     }
 
@@ -251,7 +254,11 @@ const plugin: JupyterFrontEndPlugin<void> = {
       isEnabled: () => true,
       isVisible: () => true,
       execute: async function (_args: ReadonlyPartialJSONObject) {
-        workspace = await workspaceFromEnvironment(app, tracker.currentWidget!);
+        workspace = await workspaceFromEnvironment(
+          app,
+          tracker.currentWidget!,
+          overrides
+        );
       }
     });
 
