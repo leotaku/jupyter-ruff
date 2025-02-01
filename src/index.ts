@@ -154,6 +154,28 @@ const plugin: JupyterFrontEndPlugin<void> = {
       }
     });
 
+    app.commands.addCommand('jupyter-ruff:reload-configuration', {
+      label: 'Reload Configuration Files for Ruff',
+      isEnabled: () => true,
+      isVisible: () => true,
+      execute: async function (_args: ReadonlyPartialJSONObject) {
+        workspace = await workspaceFromEnvironment(app, tracker.currentWidget!);
+      }
+    });
+
+    palette.addItem({
+      command: 'jupyter-ruff:format-cell',
+      category: 'ruff'
+    });
+    palette.addItem({
+      command: 'jupyter-ruff:format-all-cells',
+      category: 'ruff'
+    });
+    palette.addItem({
+      command: 'jupyter-ruff:reload-configuration',
+      category: 'ruff'
+    });
+
     NotebookActions.executionScheduled.connect((_, { cell }) => {
       if (!canBeFormatted(cell.model)) {
         return;
@@ -182,28 +204,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
           }
         }
       });
-    });
-
-    app.commands.addCommand('jupyter-ruff:reload-configuration', {
-      label: 'Reload On-Disk Configuration Files for Ruff',
-      isEnabled: () => true,
-      isVisible: () => true,
-      execute: async function (_args: ReadonlyPartialJSONObject) {
-        workspace = await workspaceFromEnvironment(app, tracker.currentWidget!);
-      }
-    });
-
-    palette.addItem({
-      command: 'jupyter-ruff:format-cell',
-      category: 'ruff'
-    });
-    palette.addItem({
-      command: 'jupyter-ruff:format-all-cells',
-      category: 'ruff'
-    });
-    palette.addItem({
-      command: 'jupyter-ruff:reload-configuration',
-      category: 'ruff'
     });
   }
 };
