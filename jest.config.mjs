@@ -1,4 +1,7 @@
-const jestJupyterLab = require('@jupyterlab/testutils/lib/jest-config');
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+import jestJupyterLab from '@jupyterlab/testutils/lib/jest-config.js';
 
 const esModules = [
   '@codemirror',
@@ -12,9 +15,10 @@ const esModules = [
   'yjs'
 ].join('|');
 
-const baseConfig = jestJupyterLab(__dirname);
+const baseConfig = jestJupyterLab(dirname(fileURLToPath(import.meta.url)));
 
-module.exports = {
+/** @type {import('jest').Config} */
+const config = {
   ...baseConfig,
   automock: false,
   collectCoverageFrom: [
@@ -26,3 +30,5 @@ module.exports = {
   testRegex: 'src/.*/.*.spec.ts[x]?$',
   transformIgnorePatterns: [`/node_modules/(?!${esModules}).+`]
 };
+
+export default config;
