@@ -11,6 +11,10 @@ jupyter_ruff/labextension
 # Version file is handled by hatchling
 jupyter_ruff/_version.py
 
+# Unit tests
+junit.xml
+coverage
+
 # Integration tests
 ui-tests/test-results/
 ui-tests/playwright-report/
