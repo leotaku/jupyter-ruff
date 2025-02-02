@@ -25,6 +25,18 @@
       }
     ]
   },
+  "jupyter.lab.shortcuts": [
+    {
+      "command": "jupyter-ruff:format-cell",
+      "keys": ["Alt Shift F"],
+      "selector": ".jp-CodeCell"
+    },
+    {
+      "command": "jupyter-ruff:format-all-cells",
+      "keys": ["Alt Shift A"],
+      "selector": "body"
+    }
+  ],
   "properties": {
     "format-on-run": {
       "type": "boolean",

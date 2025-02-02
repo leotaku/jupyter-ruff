@@ -20,7 +20,7 @@ An interactive environment to try out this extension is available on [Binder](ht
 Alternatively, learn how to use this extension by reading the [`Demo.ipynb`](https://github.com/leotaku/jupyter-ruff/blob/master/binder/Demo.ipynb) notebook.
 
 If you are familiar with [`nb_black`](https://github.com/dnanhkhoa/nb_black), this extension can provide a similar mode of operation where cells are formatted as they are executed.
-However, you also have the option to just format cells using menus, the command palette, or format on save.
+However, you also have the option to just format cells using menus, keyboard shortcuts, the command palette, or format on save.
 
 You may also consult the [Ruff documentation](https://docs.astral.sh/ruff/formatter/) to learn about the underlying formatting rules.
 
