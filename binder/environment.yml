@@ -1,4 +1,4 @@
-# a mybinder.org-ready environment for demoing jupyter_ruff
+# a mybinder.org-ready environment for demoing jupyter-ruff
 # this environment may also be used locally on Linux/MacOS/Windows, e.g.
 #
 #   conda env update --file binder/environment.yml
