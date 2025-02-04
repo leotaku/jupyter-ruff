@@ -10,11 +10,11 @@ import {
   NotebookActions,
   NotebookPanel
 } from '@jupyterlab/notebook';
-import { Contents } from '@jupyterlab/services';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { ICellModel } from '@jupyterlab/cells';
-import { PathExt } from '@jupyterlab/coreutils';
+import { Contents } from '@jupyterlab/services';
 
+import { PathExt } from '@jupyterlab/coreutils';
 import init, { Workspace, type Diagnostic } from '@astral-sh/ruff-wasm-web';
 import * as toml from 'smol-toml';
 
