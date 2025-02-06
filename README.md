@@ -1,6 +1,7 @@
 # jupyter-ruff
 
 [![PyPI Version](https://img.shields.io/pypi/v/jupyter-ruff)](https://pypi.org/project/jupyter-ruff/)
+[![Conda Version](https://img.shields.io/conda/vn/conda-forge/jupyter-ruff.svg)](https://anaconda.org/conda-forge/jupyter-ruff)
 [![NPM Version](https://img.shields.io/npm/v/jupyter-ruff)](https://www.npmjs.com/package/jupyter-ruff)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/leotaku/jupyter-ruff/build.yml?logo=github&label=ci)](https://github.com/leotaku/jupyter-ruff/actions/workflows/build.yml)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/leotaku/jupyter-ruff/master?urlpath=%2Fdoc%2Ftree%2Fbinder%2FDemo.ipynb)
@@ -26,16 +27,18 @@ You may also consult the [Ruff documentation](https://docs.astral.sh/ruff/format
 
 ## Install
 
-To install the extension, execute:
+To install the extension, execute one of the following:
 
 ```bash
 pip install jupyter-ruff
+mamba install jupyter-ruff -c conda-forge
 ```
 
-To remove the extension, execute:
+To remove the extension, execute one of the following:
 
 ```bash
 pip uninstall jupyter-ruff
+mamba remove jupyter-ruff
 ```
 
 Alternatively, you can also use the builtin JupyterLab extension manager to install the extension.
