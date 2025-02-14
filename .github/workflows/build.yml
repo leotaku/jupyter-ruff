@@ -23,13 +23,13 @@ jobs:
       uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 
     - name: Install dependencies
-      run: python -m pip install -U "jupyterlab>=4.0.0,<5"
-
-    - name: Lint the extension
       run: |
         set -eux
-        jlpm
-        jlpm run lint:check
+        python -m pip install -U "jupyterlab>=4.0.0,<5"
+        jlpm install
+
+    - name: Lint the extension
+      run: jlpm run lint:check
 
   build:
     name: Build
@@ -43,12 +43,13 @@ jobs:
       uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 
     - name: Install dependencies
-      run: python -m pip install -U "jupyterlab>=4.0.0,<5"
-
-    - name: Test the extension
       run: |
         set -eux
-        jlpm run test
+        python -m pip install -U "jupyterlab>=4.0.0,<5"
+        jlpm install
+
+    - name: Test the extension
+      run: jlpm run test
 
     - name: Build the extension
       run: |
