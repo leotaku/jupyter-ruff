@@ -10,6 +10,7 @@ import {
   NotebookActions,
   NotebookPanel
 } from '@jupyterlab/notebook';
+import { FileEditor, IEditorTracker } from '@jupyterlab/fileeditor';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { ICellModel } from '@jupyterlab/cells';
 import { Contents } from '@jupyterlab/services';
@@ -60,10 +61,30 @@ function isNotebookSelected(
 }
 
 /**
+ * Checks wether an editor is currently selected.
+ */
+function isEditorSelected(
+  tracker: IEditorTracker,
+  shell: JupyterFrontEnd.IShell
+): boolean {
+  return (
+    tracker.currentWidget !== null &&
+    tracker.currentWidget === shell.currentWidget
+  );
+}
+
+/**
  * Checks whether given cell can be formatted using Ruff.
  */
-function canBeFormatted(cellModel: ICellModel | undefined): boolean {
+function canCellBeFormatted(cellModel: ICellModel | undefined): boolean {
   return cellModel?.type === 'code' && cellModel?.mimeType === 'text/x-ipython';
+}
+
+/**
+ * Checks whether given editor can be formatted using Ruff.
+ */
+function canEditorBeFormatted(editor: FileEditor | undefined): boolean {
+  return editor?.model.mimeType === 'text/x-python';
 }
 
 /**
@@ -207,11 +228,17 @@ const plugin: JupyterFrontEndPlugin<void> = {
   description:
     'A JupyterLab and Jupyter Notebook extension for formatting code with Ruff.',
   autoStart: true,
-  requires: [ICommandPalette, INotebookTracker, ISettingRegistry],
+  requires: [
+    ICommandPalette,
+    INotebookTracker,
+    IEditorTracker,
+    ISettingRegistry
+  ],
   activate: async (
     app: JupyterFrontEnd,
     palette: ICommandPalette,
-    tracker: INotebookTracker,
+    notebooks: INotebookTracker,
+    editors: IEditorTracker,
     registry: ISettingRegistry
   ) => {
     await init();
@@ -238,7 +265,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     let workspace = new Workspace(overrides);
 
-    tracker.currentChanged.connect(async (_, panel) => {
+    notebooks.currentChanged.connect(async (_, panel) => {
       workspace = await workspaceFromEnvironment(app, panel!, overrides);
     });
 
@@ -250,31 +277,44 @@ const plugin: JupyterFrontEndPlugin<void> = {
     app.commands.addCommand('jupyter-ruff:format-cell', {
       label: 'Format Cell Using Ruff',
       isEnabled: () =>
-        isNotebookSelected(tracker, app.shell) &&
-        canBeFormatted(tracker.activeCell?.model),
-      isVisible: () => true,
+        isNotebookSelected(notebooks, app.shell) &&
+        canCellBeFormatted(notebooks.activeCell?.model),
+      isVisible: () => isNotebookSelected(notebooks, app.shell),
       execute: function (_args: ReadonlyPartialJSONObject) {
         const formatted = isortAndFormat(
-          tracker.activeCell!.model.sharedModel.source
+          notebooks.activeCell!.model.sharedModel.source
         );
-        tracker.activeCell?.model.sharedModel.setSource(formatted);
+        notebooks.activeCell?.model.sharedModel.setSource(formatted);
       }
     });
 
     app.commands.addCommand('jupyter-ruff:format-all-cells', {
       label: 'Format All Cells Using Ruff',
-      isEnabled: () => isNotebookSelected(tracker, app.shell),
-      isVisible: () => true,
+      isEnabled: () => isNotebookSelected(notebooks, app.shell),
+      isVisible: () => isNotebookSelected(notebooks, app.shell),
       execute: function (_args: ReadonlyPartialJSONObject) {
-        const cells = tracker.currentWidget?.content.model?.cells ?? [];
+        const cells = notebooks.currentWidget?.content.model?.cells ?? [];
         for (const cell of cells) {
-          if (!canBeFormatted(cell)) {
+          if (!canCellBeFormatted(cell)) {
             continue;
           }
 
           const formatted = isortAndFormat(cell.sharedModel.source!);
           cell.sharedModel.setSource(formatted);
         }
+      }
+    });
+
+    app.commands.addCommand('jupyter-ruff:format-editor', {
+      label: 'Format Editor Contents Using Ruff',
+      isEnabled: () =>
+        isEditorSelected(editors, app.shell) &&
+        canEditorBeFormatted(editors.currentWidget?.content),
+      isVisible: () => isEditorSelected(editors, app.shell),
+      execute: function (_args: ReadonlyPartialJSONObject) {
+        const editor = editors.currentWidget!.content.editor;
+        const formatted = isortAndFormat(editor.model.sharedModel.source);
+        editor.model.sharedModel.setSource(formatted);
       }
     });
 
@@ -285,7 +325,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       execute: async function (_args: ReadonlyPartialJSONObject) {
         workspace = await workspaceFromEnvironment(
           app,
-          tracker.currentWidget!,
+          notebooks.currentWidget!,
           overrides
         );
       }
@@ -300,12 +340,16 @@ const plugin: JupyterFrontEndPlugin<void> = {
       category: 'ruff'
     });
     palette.addItem({
+      command: 'jupyter-ruff:format-editor',
+      category: 'ruff'
+    });
+    palette.addItem({
       command: 'jupyter-ruff:reload-configuration',
       category: 'ruff'
     });
 
     NotebookActions.executionScheduled.connect((_, { cell }) => {
-      if (!canBeFormatted(cell.model)) {
+      if (!canCellBeFormatted(cell.model)) {
         return;
       }
 
@@ -315,7 +359,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       }
     });
 
-    tracker.currentChanged.connect(async (_, panel) => {
+    notebooks.currentChanged.connect(async (_, panel) => {
       panel?.context.saveState.connect((context, state) => {
         if (state !== 'started') {
           return;
@@ -323,7 +367,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
         if (autoFormatSaveToggle) {
           for (const cell of context.model.cells) {
-            if (!canBeFormatted(cell)) {
+            if (!canCellBeFormatted(cell)) {
               continue;
             }
 
@@ -332,6 +376,22 @@ const plugin: JupyterFrontEndPlugin<void> = {
           }
         }
       });
+    });
+    editors.currentChanged.connect(async (_, panel) => {
+      if (canEditorBeFormatted(panel?.content)) {
+        panel?.context.saveState.connect((context, state) => {
+          if (state !== 'started') {
+            return;
+          }
+
+          if (autoFormatSaveToggle) {
+            const formatted = isortAndFormat(
+              context.model.sharedModel.getSource() as string
+            );
+            context.model.sharedModel.setSource(formatted);
+          }
+        });
+      }
     });
   }
 };
