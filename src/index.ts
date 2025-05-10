@@ -377,21 +377,19 @@ const plugin: JupyterFrontEndPlugin<void> = {
         }
       });
     });
-    editors.currentChanged.connect(async (_, panel) => {
-      if (canEditorBeFormatted(panel?.content)) {
-        panel?.context.saveState.connect((context, state) => {
-          if (state !== 'started') {
-            return;
-          }
+    editors.currentChanged.connect(async (_, widget) => {
+      widget?.context.saveState.connect((_, state) => {
+        if (state !== 'started') {
+          return;
+        }
 
-          if (autoFormatSaveToggle) {
-            const formatted = isortAndFormat(
-              context.model.sharedModel.getSource() as string
-            );
-            context.model.sharedModel.setSource(formatted);
-          }
-        });
-      }
+        if (autoFormatSaveToggle && canEditorBeFormatted(widget?.content.model)) {
+          const formatted = isortAndFormat(
+            widget.content.model.sharedModel.source
+          );
+          widget.content.model.sharedModel.setSource(formatted);
+        }
+      });
     });
   }
 };
