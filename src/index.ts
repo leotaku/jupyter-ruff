@@ -14,7 +14,9 @@ import { IEditorTracker } from '@jupyterlab/fileeditor';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { CellModel } from '@jupyterlab/cells';
 import { Contents } from '@jupyterlab/services';
+import { IWidgetTracker } from '@jupyterlab/apputils';
 import { CodeEditor } from '@jupyterlab/codeeditor';
+import { Widget } from '@lumino/widgets';
 
 import { PathExt } from '@jupyterlab/coreutils';
 import init, { Workspace, type Diagnostic } from '@astral-sh/ruff-wasm-web';
@@ -49,23 +51,10 @@ class LocationMapper {
 }
 
 /**
- * Checks wether a notebook is currently selected.
+ * Checks wether a tracked widget type is currently selected.
  */
-function isNotebookSelected(
-  tracker: INotebookTracker,
-  shell: JupyterFrontEnd.IShell
-): boolean {
-  return (
-    tracker.currentWidget !== null &&
-    tracker.currentWidget === shell.currentWidget
-  );
-}
-
-/**
- * Checks wether an editor is currently selected.
- */
-function isEditorSelected(
-  tracker: IEditorTracker,
+function isWidgetSelected(
+  tracker: IWidgetTracker<Widget>,
   shell: JupyterFrontEnd.IShell
 ): boolean {
   return (
@@ -277,9 +266,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
     app.commands.addCommand('jupyter-ruff:format-cell', {
       label: 'Format Cell Using Ruff',
       isEnabled: () =>
-        isNotebookSelected(notebooks, app.shell) &&
+        isWidgetSelected(notebooks, app.shell) &&
         canBeFormatted(notebooks.activeCell?.model),
-      isVisible: () => isNotebookSelected(notebooks, app.shell),
+      isVisible: () => isWidgetSelected(notebooks, app.shell),
       execute: function (_args: ReadonlyPartialJSONObject) {
         const formatted = isortAndFormat(
           notebooks.activeCell!.model.sharedModel.source
@@ -290,8 +279,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     app.commands.addCommand('jupyter-ruff:format-all-cells', {
       label: 'Format All Cells Using Ruff',
-      isEnabled: () => isNotebookSelected(notebooks, app.shell),
-      isVisible: () => isNotebookSelected(notebooks, app.shell),
+      isEnabled: () => isWidgetSelected(notebooks, app.shell),
+      isVisible: () => isWidgetSelected(notebooks, app.shell),
       execute: function (_args: ReadonlyPartialJSONObject) {
         const cells = notebooks.currentWidget?.content.model?.cells ?? [];
         for (const cell of cells) {
@@ -308,9 +297,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
     app.commands.addCommand('jupyter-ruff:format-editor', {
       label: 'Format Editor Contents Using Ruff',
       isEnabled: () =>
-        isEditorSelected(editors, app.shell) &&
+        isWidgetSelected(editors, app.shell) &&
         canBeFormatted(editors.currentWidget?.content.model),
-      isVisible: () => isEditorSelected(editors, app.shell),
+      isVisible: () => isWidgetSelected(editors, app.shell),
       execute: function (_args: ReadonlyPartialJSONObject) {
         const editor = editors.currentWidget!.content.editor;
         const formatted = isortAndFormat(editor.model.sharedModel.source);
