@@ -5,16 +5,13 @@ import {
 
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import { ICommandPalette } from '@jupyterlab/apputils';
-import {
-  INotebookTracker,
-  NotebookActions,
-  NotebookPanel
-} from '@jupyterlab/notebook';
+import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { IEditorTracker } from '@jupyterlab/fileeditor';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { CellModel } from '@jupyterlab/cells';
 import { Contents } from '@jupyterlab/services';
 import { IWidgetTracker } from '@jupyterlab/apputils';
+import { DocumentRegistry } from '@jupyterlab/docregistry';
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import { Widget } from '@lumino/widgets';
 
@@ -176,10 +173,10 @@ function configRuffSection(
  */
 async function workspaceFromEnvironment(
   app: JupyterFrontEnd,
-  notebook: NotebookPanel,
+  context: DocumentRegistry.IContext<DocumentRegistry.IModel>,
   overrides: Record<string, toml.TomlPrimitive>
 ): Promise<Workspace> {
-  let directory = notebook.context.path;
+  let directory = context.path;
   do {
     directory = PathExt.dirname(directory);
 
@@ -254,9 +251,17 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     let workspace = new Workspace(overrides);
 
-    notebooks.currentChanged.connect(async (_, panel) => {
-      workspace = await workspaceFromEnvironment(app, panel!, overrides);
-    });
+    for (const tracker of [notebooks, editors]) {
+      tracker.currentChanged.connect(async (_, panelOrWidget) => {
+        if (panelOrWidget) {
+          workspace = await workspaceFromEnvironment(
+            app,
+            panelOrWidget.context,
+            overrides
+          );
+        }
+      });
+    }
 
     function isortAndFormat(text: string): string {
       const isorted = isortToggle ? fix(workspace, text) : text;
@@ -314,7 +319,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       execute: async function (_args: ReadonlyPartialJSONObject) {
         workspace = await workspaceFromEnvironment(
           app,
-          notebooks.currentWidget!,
+          notebooks.currentWidget!.context,
           overrides
         );
       }
