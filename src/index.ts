@@ -10,10 +10,11 @@ import {
   NotebookActions,
   NotebookPanel
 } from '@jupyterlab/notebook';
-import { FileEditor, IEditorTracker } from '@jupyterlab/fileeditor';
+import { IEditorTracker } from '@jupyterlab/fileeditor';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
-import { ICellModel } from '@jupyterlab/cells';
+import { CellModel } from '@jupyterlab/cells';
 import { Contents } from '@jupyterlab/services';
+import { CodeEditor } from '@jupyterlab/codeeditor';
 
 import { PathExt } from '@jupyterlab/coreutils';
 import init, { Workspace, type Diagnostic } from '@astral-sh/ruff-wasm-web';
@@ -74,17 +75,16 @@ function isEditorSelected(
 }
 
 /**
- * Checks whether given cell can be formatted using Ruff.
+ * Checks whether given editor model can be formatted using Ruff.
  */
-function canCellBeFormatted(cellModel: ICellModel | undefined): boolean {
-  return cellModel?.type === 'code' && cellModel?.mimeType === 'text/x-ipython';
-}
+function canBeFormatted(model: CodeEditor.IModel | undefined): boolean {
+  if (model instanceof CellModel && model.type !== 'code') {
+    return false;
+  }
 
-/**
- * Checks whether given editor can be formatted using Ruff.
- */
-function canEditorBeFormatted(editor: FileEditor | undefined): boolean {
-  return editor?.model.mimeType === 'text/x-python';
+  return (
+    model?.mimeType === 'text/x-python' || model?.mimeType === 'text/x-ipython'
+  );
 }
 
 /**
@@ -278,7 +278,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       label: 'Format Cell Using Ruff',
       isEnabled: () =>
         isNotebookSelected(notebooks, app.shell) &&
-        canCellBeFormatted(notebooks.activeCell?.model),
+        canBeFormatted(notebooks.activeCell?.model),
       isVisible: () => isNotebookSelected(notebooks, app.shell),
       execute: function (_args: ReadonlyPartialJSONObject) {
         const formatted = isortAndFormat(
@@ -295,7 +295,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       execute: function (_args: ReadonlyPartialJSONObject) {
         const cells = notebooks.currentWidget?.content.model?.cells ?? [];
         for (const cell of cells) {
-          if (!canCellBeFormatted(cell)) {
+          if (!canBeFormatted(cell)) {
             continue;
           }
 
@@ -309,7 +309,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       label: 'Format Editor Contents Using Ruff',
       isEnabled: () =>
         isEditorSelected(editors, app.shell) &&
-        canEditorBeFormatted(editors.currentWidget?.content),
+        canBeFormatted(editors.currentWidget?.content.model),
       isVisible: () => isEditorSelected(editors, app.shell),
       execute: function (_args: ReadonlyPartialJSONObject) {
         const editor = editors.currentWidget!.content.editor;
@@ -349,7 +349,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     });
 
     NotebookActions.executionScheduled.connect((_, { cell }) => {
-      if (!canCellBeFormatted(cell.model)) {
+      if (!canBeFormatted(cell.model)) {
         return;
       }
 
@@ -367,7 +367,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
         if (autoFormatSaveToggle) {
           for (const cell of context.model.cells) {
-            if (!canCellBeFormatted(cell)) {
+            if (!canBeFormatted(cell)) {
               continue;
             }
 
@@ -383,7 +383,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
           return;
         }
 
-        if (autoFormatSaveToggle && canEditorBeFormatted(widget?.content.model)) {
+        if (autoFormatSaveToggle && canBeFormatted(widget?.content.model)) {
           const formatted = isortAndFormat(
             widget.content.model.sharedModel.source
           );
