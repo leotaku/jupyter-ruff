@@ -19,6 +19,8 @@ import { PathExt } from '@jupyterlab/coreutils';
 import init, { Workspace, type Diagnostic } from '@astral-sh/ruff-wasm-web';
 import * as toml from 'smol-toml';
 
+import { updateSource } from './cursor';
+
 /**
  * A class to convert row and column text positions into offsets.
  */
@@ -278,7 +280,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         const formatted = isortAndFormat(
           notebooks.activeCell!.model.sharedModel.source
         );
-        notebooks.activeCell?.model.sharedModel.setSource(formatted);
+        updateSource(notebooks.activeCell!.editor!, formatted);
       }
     });
 
@@ -287,14 +289,14 @@ const plugin: JupyterFrontEndPlugin<void> = {
       isEnabled: () => isWidgetSelected(notebooks, app.shell),
       isVisible: () => isWidgetSelected(notebooks, app.shell),
       execute: function (_args: ReadonlyPartialJSONObject) {
-        const cells = notebooks.currentWidget?.content.model?.cells ?? [];
+        const cells = notebooks.currentWidget?.content.widgets ?? [];
         for (const cell of cells) {
-          if (!canBeFormatted(cell)) {
+          if (!canBeFormatted(cell.model)) {
             continue;
           }
 
-          const formatted = isortAndFormat(cell.sharedModel.source!);
-          cell.sharedModel.setSource(formatted);
+          const formatted = isortAndFormat(cell.model.sharedModel.source!);
+          updateSource(cell.editor!, formatted);
         }
       }
     });
@@ -308,7 +310,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       execute: function (_args: ReadonlyPartialJSONObject) {
         const editor = editors.currentWidget!.content.editor;
         const formatted = isortAndFormat(editor.model.sharedModel.source);
-        editor.model.sharedModel.setSource(formatted);
+        updateSource(editor, formatted);
       }
     });
 
@@ -349,24 +351,24 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
       if (autoFormatRunToggle) {
         const formatted = isortAndFormat(cell.model.sharedModel.source!);
-        cell.model.sharedModel.setSource(formatted);
+        updateSource(cell.editor!, formatted);
       }
     });
 
     notebooks.currentChanged.connect(async (_, panel) => {
-      panel?.context.saveState.connect((context, state) => {
+      panel?.context.saveState.connect((_, state) => {
         if (state !== 'started') {
           return;
         }
 
         if (autoFormatSaveToggle) {
-          for (const cell of context.model.cells) {
-            if (!canBeFormatted(cell)) {
+          for (const cell of panel.content.widgets) {
+            if (!canBeFormatted(cell.model)) {
               continue;
             }
 
-            const formatted = isortAndFormat(cell.sharedModel.source!);
-            cell.sharedModel.setSource(formatted);
+            const formatted = isortAndFormat(cell.model.sharedModel.source!);
+            updateSource(cell.editor!, formatted);
           }
         }
       });
@@ -381,7 +383,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
           const formatted = isortAndFormat(
             widget.content.model.sharedModel.source
           );
-          widget.content.model.sharedModel.setSource(formatted);
+          updateSource(widget.content.editor, formatted);
         }
       });
     });
