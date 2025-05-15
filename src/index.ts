@@ -147,7 +147,7 @@ async function workspaceFromEnvironment(
       if (filename === 'pyproject.toml') {
         const ruffSection = configRuffSection(config);
         if (ruffSection !== undefined) {
-          return new Workspace({ ...config, ...overrides });
+          return new Workspace({ ...ruffSection, ...overrides });
         }
       } else {
         return new Workspace({ ...config, ...overrides });
@@ -163,11 +163,12 @@ async function workspaceFromEnvironment(
  */
 function configRuffSection(
   config: Record<string, toml.TomlPrimitive>
-): toml.TomlPrimitive | undefined {
-  if (!(config['tool'] instanceof Object)) {
-    return false;
+): Record<string, toml.TomlPrimitive> | undefined {
+  if (!((config as any)?.['tool']?.['ruff'] instanceof Object)) {
+    return undefined;
   }
-  return (config['tool'] as Record<string, toml.TomlPrimitive>)['ruff'];
+
+  return (config as any)['tool']['ruff'];
 }
 
 /**
