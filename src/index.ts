@@ -119,6 +119,28 @@ function format(workspace: Workspace, text: string): string {
 }
 
 /**
+ * Recursively merges two TOML config objects.
+ */
+function mergeTOML(
+  base: Record<string, toml.TomlPrimitive>,
+  overrides: Record<string, toml.TomlPrimitive>
+): Record<string, toml.TomlPrimitive> {
+  return Object.fromEntries(
+    Object.entries({ ...overrides, ...base }).map(([key, value], _) => [
+      key,
+      value instanceof Object &&
+      !(value instanceof toml.TomlDate) &&
+      !(value instanceof Array) &&
+      overrides[key] instanceof Object &&
+      !(overrides[key] instanceof toml.TomlDate) &&
+      !(overrides[key] instanceof Array)
+        ? mergeTOML(value, overrides[key])
+        : (overrides[key] ?? value)
+    ])
+  );
+}
+
+/**
  * Sets up a {@see Workspace} from the surrounding Ruff config files.
  *
  * See: https://docs.astral.sh/ruff/configuration/#config-file-discovery
@@ -147,10 +169,10 @@ async function workspaceFromEnvironment(
       if (filename === 'pyproject.toml') {
         const ruffSection = configRuffSection(config);
         if (ruffSection !== undefined) {
-          return new Workspace({ ...ruffSection, ...overrides });
+          return new Workspace(mergeTOML(ruffSection, overrides));
         }
       } else {
-        return new Workspace({ ...config, ...overrides });
+        return new Workspace(mergeTOML(config, overrides));
       }
     }
   } while (directory !== '');
@@ -206,7 +228,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     // Override workspace to only emit isort diagnostics, so it can
     // emit fixable diagnostics while respecting Ruff settings.
-    const overrides = { select: ['I'] };
+    const overrides = { lint: { select: ['I'] } };
 
     let workspace = new Workspace(overrides);
 
