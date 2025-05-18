@@ -141,6 +141,19 @@ function mergeTOML(
 }
 
 /**
+ * Extracts the Ruff config section from a pyproject-like TOML config.
+ */
+function configRuffSection(
+  config: Record<string, toml.TomlPrimitive>
+): Record<string, toml.TomlPrimitive> | undefined {
+  if (!((config as any)?.['tool']?.['ruff'] instanceof Object)) {
+    return undefined;
+  }
+
+  return (config as any)['tool']['ruff'];
+}
+
+/**
  * Sets up a {@see Workspace} from the surrounding Ruff config files.
  *
  * See: https://docs.astral.sh/ruff/configuration/#config-file-discovery
@@ -178,19 +191,6 @@ async function workspaceFromEnvironment(
   } while (directory !== '');
 
   return new Workspace(overrides);
-}
-
-/**
- * Extracts the Ruff config section from a pyproject-like TOML config.
- */
-function configRuffSection(
-  config: Record<string, toml.TomlPrimitive>
-): Record<string, toml.TomlPrimitive> | undefined {
-  if (!((config as any)?.['tool']?.['ruff'] instanceof Object)) {
-    return undefined;
-  }
-
-  return (config as any)['tool']['ruff'];
 }
 
 /**
