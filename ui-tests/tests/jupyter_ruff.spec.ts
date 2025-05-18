@@ -46,23 +46,32 @@ test('should format the cell', async ({ notebook }) => {
   );
 });
 
-test('should format the cell with config', async ({ notebook, tmpPath }) => {
-  notebook.contents.uploadContent(
-    `indent-width = 2`,
-    'text',
-    path.join(tmpPath, 'ruff.toml')
-  );
+[
+  ['ruff.toml', `indent-width = 2`],
+  ['.ruff.toml', `indent-width = 2`],
+  ['pyproject.toml', `[tool.ruff]\nindent-width = 2`]
+].forEach(([filename, contents]) => {
+  test(`should format the cell (${filename})`, async ({
+    notebook,
+    tmpPath
+  }) => {
+    notebook.contents.uploadContent(
+      contents,
+      'text',
+      path.join(tmpPath, filename)
+    );
 
-  await notebook.open('WithConfig.ipynb');
-  await notebook.selectCells(0);
+    await notebook.open('WithConfig.ipynb');
+    await notebook.selectCells(0);
 
-  await notebook.page.evaluate(async () => {
-    await window.jupyterapp.commands.execute('jupyter-ruff:format-cell');
+    await notebook.page.evaluate(async () => {
+      await window.jupyterapp.commands.execute('jupyter-ruff:format-cell');
+    });
+
+    expect(await notebook.getCellTextInput(0)).toBe(
+      await notebook.getCellTextInput(1)
+    );
   });
-
-  expect(await notebook.getCellTextInput(0)).toBe(
-    await notebook.getCellTextInput(1)
-  );
 });
 
 test('should isort the cell', async ({ notebook }) => {
@@ -78,21 +87,27 @@ test('should isort the cell', async ({ notebook }) => {
   );
 });
 
-test('should isort the cell with config', async ({ notebook, tmpPath }) => {
-  notebook.contents.uploadContent(
-    `[lint.isort]\nfrom-first = true`,
-    'text',
-    path.join(tmpPath, 'ruff.toml')
-  );
+[
+  ['ruff.toml', `[lint.isort]\nfrom-first = true`],
+  ['.ruff.toml', `[lint.isort]\nfrom-first = true`],
+  ['pyproject.toml', `[tool.ruff.lint.isort]\nfrom-first = true`]
+].forEach(([filename, contents]) => {
+  test(`should isort the cell (${filename})`, async ({ notebook, tmpPath }) => {
+    notebook.contents.uploadContent(
+      contents,
+      'text',
+      path.join(tmpPath, filename)
+    );
 
-  await notebook.open('IsortWithConfig.ipynb');
-  await notebook.selectCells(0);
+    await notebook.open('IsortWithConfig.ipynb');
+    await notebook.selectCells(0);
 
-  await notebook.page.evaluate(async () => {
-    await window.jupyterapp.commands.execute('jupyter-ruff:format-cell');
+    await notebook.page.evaluate(async () => {
+      await window.jupyterapp.commands.execute('jupyter-ruff:format-cell');
+    });
+
+    expect(await notebook.getCellTextInput(0)).toBe(
+      await notebook.getCellTextInput(1)
+    );
   });
-
-  expect(await notebook.getCellTextInput(0)).toBe(
-    await notebook.getCellTextInput(1)
-  );
 });
