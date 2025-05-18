@@ -119,6 +119,47 @@ function format(workspace: Workspace, text: string): string {
 }
 
 /**
+ * Recursively merges two TOML config objects.
+ */
+function mergeTOML(
+  base: Record<string, toml.TomlPrimitive>,
+  overrides: Record<string, toml.TomlPrimitive>
+): Record<string, toml.TomlPrimitive> {
+  return Object.fromEntries(
+    Object.keys({ ...base, ...overrides })
+      .map((key, _): [string, toml.TomlPrimitive, toml.TomlPrimitive] => [
+        key,
+        base[key],
+        overrides[key]
+      ])
+      .map(([key, value, override]) => [
+        key,
+        value instanceof Object &&
+        !(value instanceof toml.TomlDate) &&
+        !(value instanceof Array) &&
+        override instanceof Object &&
+        !(override instanceof toml.TomlDate) &&
+        !(override instanceof Array)
+          ? mergeTOML(value, override)
+          : (override ?? value)
+      ])
+  );
+}
+
+/**
+ * Extracts the Ruff config section from a pyproject-like TOML config.
+ */
+function configRuffSection(
+  config: Record<string, toml.TomlPrimitive>
+): Record<string, toml.TomlPrimitive> | undefined {
+  if (!((config as any)?.['tool']?.['ruff'] instanceof Object)) {
+    return undefined;
+  }
+
+  return (config as any)['tool']['ruff'];
+}
+
+/**
  * Sets up a {@see Workspace} from the surrounding Ruff config files.
  *
  * See: https://docs.astral.sh/ruff/configuration/#config-file-discovery
@@ -147,27 +188,15 @@ async function workspaceFromEnvironment(
       if (filename === 'pyproject.toml') {
         const ruffSection = configRuffSection(config);
         if (ruffSection !== undefined) {
-          return new Workspace({ ...config, ...overrides });
+          return new Workspace(mergeTOML(ruffSection, overrides));
         }
       } else {
-        return new Workspace({ ...config, ...overrides });
+        return new Workspace(mergeTOML(config, overrides));
       }
     }
   } while (directory !== '');
 
   return new Workspace(overrides);
-}
-
-/**
- * Extracts the Ruff config section from a pyproject-like TOML config.
- */
-function configRuffSection(
-  config: Record<string, toml.TomlPrimitive>
-): toml.TomlPrimitive | undefined {
-  if (!(config['tool'] instanceof Object)) {
-    return false;
-  }
-  return (config['tool'] as Record<string, toml.TomlPrimitive>)['ruff'];
 }
 
 /**
@@ -205,7 +234,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     // Override workspace to only emit isort diagnostics, so it can
     // emit fixable diagnostics while respecting Ruff settings.
-    const overrides = { select: ['I'] };
+    const overrides = { lint: { select: ['I'] } };
 
     let workspace = new Workspace(overrides);
 
