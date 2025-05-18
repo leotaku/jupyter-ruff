@@ -126,16 +126,16 @@ function mergeTOML(
   overrides: Record<string, toml.TomlPrimitive>
 ): Record<string, toml.TomlPrimitive> {
   return Object.fromEntries(
-    Object.entries({ ...overrides, ...base }).map(([key, value], _) => [
+    Object.keys({ ...base, ...overrides }).map((key, _) => [
       key,
-      value instanceof Object &&
-      !(value instanceof toml.TomlDate) &&
-      !(value instanceof Array) &&
+      base[key] instanceof Object &&
+      !(base[key] instanceof toml.TomlDate) &&
+      !(base[key] instanceof Array) &&
       overrides[key] instanceof Object &&
       !(overrides[key] instanceof toml.TomlDate) &&
       !(overrides[key] instanceof Array)
-        ? mergeTOML(value, overrides[key])
-        : (overrides[key] ?? value)
+        ? mergeTOML(base[key], overrides[key])
+        : (overrides[key] ?? base[key])
     ])
   );
 }
