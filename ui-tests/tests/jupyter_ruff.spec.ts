@@ -111,3 +111,23 @@ test('should isort the cell', async ({ notebook }) => {
     );
   });
 });
+
+async function getEditorTextInput(notebook: NotebookHelper) {
+  return await notebook.page
+    .locator('.jp-Document:visible')
+    .locator('.cm-editor .cm-content')
+    .textContent();
+}
+
+test('should format the editor', async ({ notebook }) => {
+  await notebook.open('formatted.py');
+  const formatted = await getEditorTextInput(notebook);
+
+  await notebook.open('simple.py');
+
+  await notebook.page.evaluate(async () => {
+    await window.jupyterapp.commands.execute('jupyter-ruff:format-editor');
+  });
+
+  expect(await getEditorTextInput(notebook)).toBe(formatted);
+});
