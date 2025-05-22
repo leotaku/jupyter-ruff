@@ -1,7 +1,7 @@
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import { distance } from 'fastest-levenshtein';
 
-function realignIndex(
+export function realignIndex(
   oldSequence: string,
   newSequence: string,
   oldIndex: number
