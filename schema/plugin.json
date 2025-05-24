@@ -13,6 +13,10 @@
           {
             "command": "jupyter-ruff:format-all-cells",
             "rank": 500
+          },
+          {
+            "command": "jupyter-ruff:format-editor",
+            "rank": 500
           }
         ]
       }
@@ -21,6 +25,11 @@
       {
         "command": "jupyter-ruff:format-cell",
         "selector": ".jp-CodeCell",
+        "rank": 999
+      },
+      {
+        "command": "jupyter-ruff:format-editor",
+        "selector": ".jp-Editor",
         "rank": 999
       }
     ]
@@ -34,6 +43,11 @@
     {
       "command": "jupyter-ruff:format-all-cells",
       "keys": ["Alt Shift A"],
+      "selector": "body"
+    },
+    {
+      "command": "jupyter-ruff:format-editor",
+      "keys": ["Alt Shift F"],
       "selector": "body"
     }
   ],
