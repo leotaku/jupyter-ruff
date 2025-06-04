@@ -4,6 +4,11 @@ import { PathExt } from '@jupyterlab/coreutils';
 import { Workspace, PositionEncoding } from '@astral-sh/ruff-wasm-web';
 import * as toml from 'smol-toml';
 
+/**
+ * Sets up a {@see Workspace} from the surrounding Ruff config files.
+ *
+ * See: https://docs.astral.sh/ruff/configuration/#config-file-discovery
+ */
 export async function workspaceFromEnvironment(
   path: string,
   fs: Contents.IManager,
@@ -39,6 +44,11 @@ export async function workspaceFromEnvironment(
   return new Workspace(overrides ?? {}, PositionEncoding.Utf16);
 }
 
+/**
+ * Sets up a {@see Workspace} from a config while resolving `extend`.
+ *
+ * See: https://docs.astral.sh/ruff/settings/#extend
+ */
 async function fromConfig(
   config: Record<string, toml.TomlPrimitive>,
   fs: Contents.IManager
