@@ -9,21 +9,18 @@ import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { IEditorTracker } from '@jupyterlab/fileeditor';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { CellModel } from '@jupyterlab/cells';
-import { Contents } from '@jupyterlab/services';
 import { IWidgetTracker } from '@jupyterlab/apputils';
-import { DocumentRegistry } from '@jupyterlab/docregistry';
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import { Widget } from '@lumino/widgets';
 
-import { PathExt } from '@jupyterlab/coreutils';
 import init, {
   Workspace,
   type Diagnostic,
   PositionEncoding
 } from '@astral-sh/ruff-wasm-web';
-import * as toml from 'smol-toml';
 
 import { updateSource } from './cursor';
+import { workspaceFromEnvironment } from './workspace';
 
 /**
  * A class to convert row and column text positions into offsets.
@@ -132,93 +129,6 @@ function format(workspace: Workspace, text: string): string {
 }
 
 /**
- * Recursively merges two TOML config objects.
- */
-function mergeTOML(
-  base: Record<string, toml.TomlPrimitive>,
-  overrides: Record<string, toml.TomlPrimitive>
-): Record<string, toml.TomlPrimitive> {
-  return Object.fromEntries(
-    Object.keys({ ...base, ...overrides })
-      .map((key, _): [string, toml.TomlPrimitive, toml.TomlPrimitive] => [
-        key,
-        base[key],
-        overrides[key]
-      ])
-      .map(([key, value, override]) => [
-        key,
-        value instanceof Object &&
-        !(value instanceof toml.TomlDate) &&
-        !(value instanceof Array) &&
-        override instanceof Object &&
-        !(override instanceof toml.TomlDate) &&
-        !(override instanceof Array)
-          ? mergeTOML(value, override)
-          : (override ?? value)
-      ])
-  );
-}
-
-/**
- * Extracts the Ruff config section from a pyproject-like TOML config.
- */
-function configRuffSection(
-  config: Record<string, toml.TomlPrimitive>
-): Record<string, toml.TomlPrimitive> | undefined {
-  if (!((config as any)?.['tool']?.['ruff'] instanceof Object)) {
-    return undefined;
-  }
-
-  return (config as any)['tool']['ruff'];
-}
-
-/**
- * Sets up a {@see Workspace} from the surrounding Ruff config files.
- *
- * See: https://docs.astral.sh/ruff/configuration/#config-file-discovery
- */
-async function workspaceFromEnvironment(
-  app: JupyterFrontEnd,
-  context: DocumentRegistry.IContext<DocumentRegistry.IModel>,
-  overrides: Record<string, toml.TomlPrimitive>
-): Promise<Workspace> {
-  let directory = context.path;
-  do {
-    directory = PathExt.dirname(directory);
-
-    const files: Contents.IModel[] = await app.serviceManager.contents
-      .get(directory)
-      .then(it => it.content);
-
-    for (const filename of ['.ruff.toml', 'ruff.toml', 'pyproject.toml']) {
-      const file = files.find(it => it.name === filename);
-      if (file === undefined) {
-        continue;
-      }
-
-      const fileWithContents = await app.serviceManager.contents.get(file.path);
-      const config = toml.parse(fileWithContents.content);
-      if (filename === 'pyproject.toml') {
-        const ruffSection = configRuffSection(config);
-        if (ruffSection !== undefined) {
-          return new Workspace(
-            mergeTOML(ruffSection, overrides),
-            PositionEncoding.Utf16
-          );
-        }
-      } else {
-        return new Workspace(
-          mergeTOML(config, overrides),
-          PositionEncoding.Utf16
-        );
-      }
-    }
-  } while (directory !== '');
-
-  return new Workspace(overrides, PositionEncoding.Utf16);
-}
-
-/**
  * Initialization data for the jupyter-ruff extension.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
@@ -267,8 +177,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
       tracker.currentChanged.connect(async (_, panelOrWidget) => {
         if (panelOrWidget) {
           workspace = await workspaceFromEnvironment(
-            app,
-            panelOrWidget.context,
+            panelOrWidget.context.path,
+            app.serviceManager.contents,
             overrides
           );
         }
@@ -330,8 +240,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
       isVisible: () => true,
       execute: async function (_args: ReadonlyPartialJSONObject) {
         workspace = await workspaceFromEnvironment(
-          app,
-          notebooks.currentWidget!.context,
+          notebooks.currentWidget!.context.path,
+          app.serviceManager.contents,
           overrides
         );
       }
