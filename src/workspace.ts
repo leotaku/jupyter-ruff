@@ -33,10 +33,14 @@ export async function workspaceFromEnvironment(
       if (filename === 'pyproject.toml') {
         const ruffSection = configRuffSection(config);
         if (ruffSection !== undefined) {
-          return fromConfig(mergeTOML(ruffSection, overrides ?? {}), fs);
+          return fromConfig(
+            mergeTOML(ruffSection, overrides ?? {}),
+            directory,
+            fs
+          );
         }
       } else {
-        return fromConfig(mergeTOML(config, overrides ?? {}), fs);
+        return fromConfig(mergeTOML(config, overrides ?? {}), directory, fs);
       }
     }
   } while (directory !== '');
@@ -51,17 +55,23 @@ export async function workspaceFromEnvironment(
  */
 async function fromConfig(
   config: Record<string, toml.TomlPrimitive>,
+  resolveBase: string,
   fs: Contents.IManager
 ): Promise<Workspace> {
   if (typeof config['extend'] === 'string') {
-    const parent = await fs
-      .get(config['extend'])
-      .then(file => toml.parse(file.content));
+    const extendFile = await fs.get(
+      PathExt.resolve(resolveBase, config['extend'])
+    );
 
+    const parent = toml.parse(extendFile.content);
     const child = { ...config };
     delete child['extend'];
 
-    return fromConfig(mergeTOML(parent, child), fs);
+    return fromConfig(
+      mergeTOML(parent, child),
+      PathExt.dirname(extendFile.path),
+      fs
+    );
   }
 
   return new Workspace(config, PositionEncoding.Utf16);
