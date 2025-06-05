@@ -33,14 +33,18 @@ export async function workspaceFromEnvironment(
       if (filename === 'pyproject.toml') {
         const ruffSection = configRuffSection(config);
         if (ruffSection !== undefined) {
-          return fromConfig(
+          return workspaceFromConfig(
             mergeTOML(ruffSection, overrides ?? {}),
             directory,
             fs
           );
         }
       } else {
-        return fromConfig(mergeTOML(config, overrides ?? {}), directory, fs);
+        return workspaceFromConfig(
+          mergeTOML(config, overrides ?? {}),
+          directory,
+          fs
+        );
       }
     }
   } while (directory !== '');
@@ -53,7 +57,7 @@ export async function workspaceFromEnvironment(
  *
  * See: https://docs.astral.sh/ruff/settings/#extend
  */
-async function fromConfig(
+async function workspaceFromConfig(
   config: Record<string, toml.TomlPrimitive>,
   resolveBase: string,
   fs: Contents.IManager
@@ -67,7 +71,7 @@ async function fromConfig(
     const child = { ...config };
     delete child['extend'];
 
-    return fromConfig(
+    return workspaceFromConfig(
       mergeTOML(parent, child),
       PathExt.dirname(extendFile.path),
       fs
