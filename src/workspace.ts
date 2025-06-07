@@ -63,17 +63,17 @@ async function workspaceFromConfig(
   fs: Contents.IManager
 ): Promise<Workspace> {
   if (typeof config['extend'] === 'string') {
-    const extendFile = await fs.get(
+    const baseFile = await fs.get(
       PathExt.resolve(resolveBase, config['extend'])
     );
 
-    const parent = toml.parse(extendFile.content);
-    const child = { ...config };
-    delete child['extend'];
+    const base = toml.parse(baseFile.content);
+    const specific = { ...config };
+    delete specific['extend'];
 
     return workspaceFromConfig(
-      mergeTOML(parent, child),
-      PathExt.dirname(extendFile.path),
+      mergeTOML(base, specific),
+      PathExt.dirname(baseFile.path),
       fs
     );
   }
