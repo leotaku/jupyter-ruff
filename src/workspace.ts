@@ -67,12 +67,15 @@ async function workspaceFromConfig(
       PathExt.resolve(resolveBase, config['extend'])
     );
 
-    const base = toml.parse(baseFile.content);
+    const base = baseFile.name.endsWith('pyproject.toml')
+      ? configRuffSection(toml.parse(baseFile.content))
+      : toml.parse(baseFile.content);
+
     const specific = { ...config };
     delete specific['extend'];
 
     return workspaceFromConfig(
-      mergeTOML(base, specific),
+      mergeTOML(base ?? {}, specific),
       PathExt.dirname(baseFile.path),
       fs
     );
