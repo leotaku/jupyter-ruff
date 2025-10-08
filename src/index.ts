@@ -16,7 +16,11 @@ import { CodeEditor } from '@jupyterlab/codeeditor';
 import { Widget } from '@lumino/widgets';
 
 import { PathExt } from '@jupyterlab/coreutils';
-import init, { Workspace, type Diagnostic } from '@astral-sh/ruff-wasm-web';
+import init, {
+  Workspace,
+  type Diagnostic,
+  PositionEncoding
+} from '@astral-sh/ruff-wasm-web';
 import * as toml from 'smol-toml';
 
 import { updateSource } from './cursor';
@@ -197,15 +201,21 @@ async function workspaceFromEnvironment(
       if (filename === 'pyproject.toml') {
         const ruffSection = configRuffSection(config);
         if (ruffSection !== undefined) {
-          return new Workspace(mergeTOML(ruffSection, overrides));
+          return new Workspace(
+            mergeTOML(ruffSection, overrides),
+            PositionEncoding.Utf16
+          );
         }
       } else {
-        return new Workspace(mergeTOML(config, overrides));
+        return new Workspace(
+          mergeTOML(config, overrides),
+          PositionEncoding.Utf16
+        );
       }
     }
   } while (directory !== '');
 
-  return new Workspace(overrides);
+  return new Workspace(overrides, PositionEncoding.Utf16);
 }
 
 /**
@@ -251,7 +261,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     // emit fixable diagnostics while respecting Ruff settings.
     const overrides = { lint: { select: ['I'] } };
 
-    let workspace = new Workspace(overrides);
+    let workspace = new Workspace(overrides, PositionEncoding.Utf16);
 
     for (const tracker of [notebooks, editors]) {
       tracker.currentChanged.connect(async (_, panelOrWidget) => {
