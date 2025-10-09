@@ -17,7 +17,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Base Setup
       uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
@@ -37,7 +37,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Base Setup
       uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
@@ -82,12 +82,12 @@ jobs:
 
     steps:
     - name: Install Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.9'
         architecture: 'x64'
 
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v5
       with:
         name: extension-artifacts
 
@@ -115,13 +115,13 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Base Setup
       uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 
     - name: Download extension package
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: extension-artifacts
 
