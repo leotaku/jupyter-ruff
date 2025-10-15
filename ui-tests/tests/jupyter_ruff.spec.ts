@@ -131,3 +131,35 @@ test('should format the editor', async ({ notebook }) => {
 
   expect(await getEditorTextInput(notebook)).toBe(formatted);
 });
+
+[
+  ['base.ruff.toml', `indent-width = 2`],
+  ['base.pyproject.toml', `[tool.ruff]\nindent-width = 2`]
+].forEach(([filename, contents]) => {
+  test(`should format the cell (extending ${filename})`, async ({
+    notebook,
+    tmpPath
+  }) => {
+    notebook.contents.uploadContent(
+      `extend = "${filename}"`,
+      'text',
+      path.join(tmpPath, 'ruff.toml')
+    );
+    notebook.contents.uploadContent(
+      contents,
+      'text',
+      path.join(tmpPath, filename)
+    );
+
+    await notebook.open('WithConfig.ipynb');
+    await notebook.selectCells(0);
+
+    await notebook.page.evaluate(async () => {
+      await window.jupyterapp.commands.execute('jupyter-ruff:format-cell');
+    });
+
+    expect(await notebook.getCellTextInput(0)).toBe(
+      await notebook.getCellTextInput(1)
+    );
+  });
+});
