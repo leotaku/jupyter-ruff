@@ -176,7 +176,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
     for (const tracker of [notebooks, editors]) {
       tracker.currentChanged.connect(async (_, panelOrWidget) => {
         if (panelOrWidget) {
-          workspace.free();
           workspace = await workspaceFromEnvironment(
             panelOrWidget.context.path,
             app.serviceManager.contents,
@@ -240,7 +239,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
       isEnabled: () => true,
       isVisible: () => true,
       execute: async function (_args: ReadonlyPartialJSONObject) {
-        workspace.free();
         workspace = await workspaceFromEnvironment(
           notebooks.currentWidget!.context.path,
           app.serviceManager.contents,
