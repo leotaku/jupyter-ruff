@@ -13,14 +13,10 @@ import { IWidgetTracker } from '@jupyterlab/apputils';
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import { Widget } from '@lumino/widgets';
 
-import init, {
-  Workspace,
-  type Diagnostic,
-  PositionEncoding
-} from '@astral-sh/ruff-wasm-web';
+import init, { type Diagnostic } from '@astral-sh/ruff-wasm-web';
 
 import { updateSource } from './cursor';
-import { workspaceFromEnvironment } from './workspace';
+import { Workspace, workspaceFromEnvironment } from './workspace';
 
 /**
  * A class to convert row and column text positions into offsets.
@@ -171,7 +167,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     // emit fixable diagnostics while respecting Ruff settings.
     const overrides = { lint: { select: ['I'] } };
 
-    let workspace = new Workspace(overrides, PositionEncoding.Utf16);
+    let workspace = new Workspace(overrides);
 
     for (const tracker of [notebooks, editors]) {
       tracker.currentChanged.connect(async (_, panelOrWidget) => {
@@ -198,6 +194,12 @@ const plugin: JupyterFrontEndPlugin<void> = {
         canBeFormatted(notebooks.activeCell?.model),
       isVisible: () => isWidgetSelected(notebooks, app.shell),
       execute: function (_args: ReadonlyPartialJSONObject) {
+        if (
+          workspace.should_format(notebooks.currentWidget!.context.path, true)
+        ) {
+          return;
+        }
+
         const formatted = isortAndFormat(
           notebooks.activeCell!.model.sharedModel.source
         );
@@ -210,6 +212,12 @@ const plugin: JupyterFrontEndPlugin<void> = {
       isEnabled: () => isWidgetSelected(notebooks, app.shell),
       isVisible: () => isWidgetSelected(notebooks, app.shell),
       execute: function (_args: ReadonlyPartialJSONObject) {
+        if (
+          workspace.should_format(notebooks.currentWidget!.context.path, true)
+        ) {
+          return;
+        }
+
         const cells = notebooks.currentWidget?.content.widgets ?? [];
         for (const cell of cells) {
           if (!canBeFormatted(cell.model)) {
@@ -229,6 +237,12 @@ const plugin: JupyterFrontEndPlugin<void> = {
         canBeFormatted(editors.currentWidget?.content.model),
       isVisible: () => isWidgetSelected(editors, app.shell),
       execute: function (_args: ReadonlyPartialJSONObject) {
+        if (
+          workspace.should_format(editors.currentWidget!.context.path, true)
+        ) {
+          return;
+        }
+
         const editor = editors.currentWidget!.content.editor;
         const formatted = isortAndFormat(editor.model.sharedModel.source);
         updateSource(editor, formatted);
@@ -266,7 +280,12 @@ const plugin: JupyterFrontEndPlugin<void> = {
       category: 'ruff'
     });
 
-    NotebookActions.executionScheduled.connect((_, { cell }) => {
+    NotebookActions.executionScheduled.connect((_, { notebook, cell }) => {
+      const panel = notebooks.find(widget => widget.content == notebook);
+      if (workspace.should_format(panel!.context.path, false)) {
+        return;
+      }
+
       if (!canBeFormatted(cell.model)) {
         return;
       }
@@ -280,6 +299,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
     notebooks.currentChanged.connect(async (_, panel) => {
       panel?.context.saveState.connect((_, state) => {
         if (state !== 'started') {
+          return;
+        }
+
+        if (workspace.should_format(panel!.context.path, false)) {
           return;
         }
 
@@ -298,6 +321,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
     editors.currentChanged.connect(async (_, widget) => {
       widget?.context.saveState.connect((_, state) => {
         if (state !== 'started') {
+          return;
+        }
+
+        if (workspace.should_format(widget.context.path, false)) {
           return;
         }
 
