@@ -281,7 +281,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     });
 
     NotebookActions.executionScheduled.connect((_, { notebook, cell }) => {
-      const panel = notebooks.find(widget => widget.content == notebook);
+      const panel = notebooks.find(widget => widget.content === notebook);
       if (workspace.should_format(panel!.context.path, false)) {
         return;
       }
