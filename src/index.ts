@@ -195,7 +195,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       isVisible: () => isWidgetSelected(notebooks, app.shell),
       execute: function (_args: ReadonlyPartialJSONObject) {
         if (
-          workspace.should_format(notebooks.currentWidget!.context.path, true)
+          !workspace.should_format(notebooks.currentWidget!.context.path, true)
         ) {
           return;
         }
@@ -213,7 +213,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       isVisible: () => isWidgetSelected(notebooks, app.shell),
       execute: function (_args: ReadonlyPartialJSONObject) {
         if (
-          workspace.should_format(notebooks.currentWidget!.context.path, true)
+          !workspace.should_format(notebooks.currentWidget!.context.path, true)
         ) {
           return;
         }
@@ -238,7 +238,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       isVisible: () => isWidgetSelected(editors, app.shell),
       execute: function (_args: ReadonlyPartialJSONObject) {
         if (
-          workspace.should_format(editors.currentWidget!.context.path, true)
+          !workspace.should_format(editors.currentWidget!.context.path, true)
         ) {
           return;
         }
@@ -282,7 +282,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     NotebookActions.executionScheduled.connect((_, { notebook, cell }) => {
       const panel = notebooks.find(widget => widget.content === notebook);
-      if (workspace.should_format(panel!.context.path, false)) {
+      if (!workspace.should_format(panel!.context.path, false)) {
         return;
       }
 
@@ -302,7 +302,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
           return;
         }
 
-        if (workspace.should_format(panel!.context.path, false)) {
+        if (!workspace.should_format(panel!.context.path, false)) {
           return;
         }
 
@@ -324,7 +324,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
           return;
         }
 
-        if (workspace.should_format(widget.context.path, false)) {
+        if (!workspace.should_format(widget.context.path, false)) {
           return;
         }
 
