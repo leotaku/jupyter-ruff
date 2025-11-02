@@ -163,3 +163,83 @@ test('should format the editor', async ({ notebook }) => {
     );
   });
 });
+
+(
+  [
+    ['include-none', `force-exclude = false\ninclude = []`, true],
+    ['include-none, force', `force-exclude = true\ninclude = []`, true], // this might be unexpected, but it matches what ruff does
+    ['exclude', `force-exclude = false\nexclude = ["simple.py"]`, true],
+    ['exclude, force', `force-exclude = true\nexclude = ["simple.py"]`, false],
+    [
+      'extend-exclude, force',
+      `force-exclude = true\nextend-exclude = ["simple.py"]`,
+      false
+    ]
+  ] as const
+).forEach(([description, contents, shouldFormat]) => {
+  test(`should format a file with exclude/include rules (${description})`, async ({
+    notebook,
+    tmpPath
+  }) => {
+    test.fail(!shouldFormat, 'should not be formatted given these settings');
+
+    notebook.contents.uploadContent(
+      contents,
+      'text',
+      path.join(tmpPath, 'ruff.toml')
+    );
+
+    await notebook.open('formatted.py');
+    const formatted = await getEditorTextInput(notebook);
+
+    await notebook.open('simple.py');
+
+    await notebook.page.evaluate(async () => {
+      await window.jupyterapp.commands.execute('jupyter-ruff:format-editor');
+    });
+
+    expect(await getEditorTextInput(notebook)).toBe(formatted);
+  });
+});
+
+(
+  [
+    ['include-none', `force-exclude = false\ninclude = []`, true],
+    ['include-none, force', `force-exclude = true\ninclude = []`, true], // this might be unexpected, but it matches what ruff does
+    ['exclude', `force-exclude = false\nexclude = ["AllCells.ipynb"]`, true],
+    [
+      'exclude, force',
+      `force-exclude = true\nexclude = ["AllCells.ipynb"]`,
+      false
+    ],
+    [
+      'extend-exclude, force',
+      `force-exclude = true\nextend-exclude = ["AllCells.ipynb"]`,
+      false
+    ]
+  ] as const
+).forEach(([description, contents, shouldFormat]) => {
+  test(`should format a notebook with exclude/include rules (${description})`, async ({
+    notebook,
+    tmpPath
+  }) => {
+    test.fail(!shouldFormat, 'should not be formatted given these settings');
+
+    notebook.contents.uploadContent(
+      contents,
+      'text',
+      path.join(tmpPath, 'ruff.toml')
+    );
+
+    await notebook.open('AllCells.ipynb');
+    await notebook.activate('AllCells.ipynb');
+
+    await notebook.page.evaluate(async () => {
+      await window.jupyterapp.commands.execute('jupyter-ruff:format-all-cells');
+    });
+
+    expect(await notebook.getCellTextInput(0)).toBe(
+      await notebook.getCellTextInput(1)
+    );
+  });
+});
