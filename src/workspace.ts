@@ -62,8 +62,8 @@ export class Workspace extends Base {
     }
 
     // NOTE: explicit formatting always ignores the include list
-    if (explicit || isMatch(path, include as string[])) {
-      if (isMatch(path, exclude as string[])) {
+    if (explicit || isMatch(path, include as string[], { contains: true })) {
+      if (isMatch(path, exclude as string[], { contains: true })) {
         return false;
       }
       return true;
