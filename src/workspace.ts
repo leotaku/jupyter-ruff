@@ -61,7 +61,8 @@ export class Workspace extends Base {
       exclude = [...exclude, ...this.options['extend-exclude']];
     }
 
-    if (isMatch(path, include as string[])) {
+    // NOTE: explicit formatting always ignores the include list
+    if (explicit || isMatch(path, include as string[])) {
       if (isMatch(path, exclude as string[])) {
         return false;
       }
