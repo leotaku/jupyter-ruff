@@ -88,7 +88,7 @@
         "stylelint-config-standard": "^34.0.0",
         "stylelint-csstree-validator": "^3.0.0",
         "stylelint-prettier": "^4.1.0",
-        "typescript": "~5.0.4",
+        "typescript": "~5.5.4",
         "yjs": "^13.6.27"
     },
     "sideEffects": [
