@@ -57,15 +57,15 @@
     },
     "dependencies": {
         "@astral-sh/ruff-wasm-web": "^0.14.0",
-        "@jupyterlab/application": "^4.4.9",
-        "@jupyterlab/fileeditor": "^4.4.9",
+        "@jupyterlab/application": "^4.5.1",
+        "@jupyterlab/fileeditor": "^4.5.1",
         "fastest-levenshtein": "^1.0.16",
         "picomatch": "^4.0.3",
         "smol-toml": "^1.4.2"
     },
     "devDependencies": {
-        "@jupyterlab/builder": "^4.4.9",
-        "@jupyterlab/testutils": "^4.4.9",
+        "@jupyterlab/builder": "^4.5.1",
+        "@jupyterlab/testutils": "^4.5.1",
         "@types/jest": "^29.5.14",
         "@types/json-schema": "^7.0.15",
         "@types/picomatch": "^4.0.2",
