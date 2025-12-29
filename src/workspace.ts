@@ -1,8 +1,77 @@
 import { Contents } from '@jupyterlab/services';
 
 import { PathExt } from '@jupyterlab/coreutils';
-import { Workspace, PositionEncoding } from '@astral-sh/ruff-wasm-web';
+import { Workspace as Base, PositionEncoding } from '@astral-sh/ruff-wasm-web';
+import { isMatch } from 'picomatch';
 import * as toml from 'smol-toml';
+
+export class Workspace extends Base {
+  options: Record<string, toml.TomlPrimitive>;
+
+  constructor(options: Record<string, toml.TomlPrimitive>) {
+    super(options, PositionEncoding.Utf16);
+    this.options = options;
+  }
+
+  should_format(path: string, explicit: boolean) {
+    if (explicit && this.options['force-exclude'] !== true) {
+      return true;
+    }
+
+    let include: toml.TomlValue[] = [
+      '*.py',
+      '*.pyi',
+      '*.pyw',
+      '*.ipynb',
+      '**/pyproject.toml'
+    ];
+    if (this.options['include'] instanceof Array) {
+      include = this.options['include'];
+    }
+    if (this.options['extend-include'] instanceof Array) {
+      include = [...include, ...this.options['extend-include']];
+    }
+
+    let exclude: toml.TomlValue[] = [
+      '.bzr',
+      '.direnv',
+      '.eggs',
+      '.git',
+      '.git-rewrite',
+      '.hg',
+      '.mypy_cache',
+      '.nox',
+      '.pants.d',
+      '.pytype',
+      '.ruff_cache',
+      '.svn',
+      '.tox',
+      '.venv',
+      '__pypackages__',
+      '_build',
+      'buck-out',
+      'dist',
+      'node_modules',
+      'venv'
+    ];
+    if (this.options['exclude'] instanceof Array) {
+      exclude = this.options['exclude'];
+    }
+    if (this.options['extend-exclude'] instanceof Array) {
+      exclude = [...exclude, ...this.options['extend-exclude']];
+    }
+
+    // NOTE: explicit formatting always ignores the include list
+    if (explicit || isMatch(path, include as string[], { contains: true })) {
+      if (isMatch(path, exclude as string[], { contains: true })) {
+        return false;
+      }
+      return true;
+    }
+
+    return false;
+  }
+}
 
 /**
  * Sets up a {@see Workspace} from the surrounding Ruff config files.
@@ -49,7 +118,7 @@ export async function workspaceFromEnvironment(
     }
   } while (directory !== '');
 
-  return new Workspace(overrides ?? {}, PositionEncoding.Utf16);
+  return new Workspace(overrides ?? {});
 }
 
 /**
@@ -81,7 +150,7 @@ async function workspaceFromConfig(
     );
   }
 
-  return new Workspace(config, PositionEncoding.Utf16);
+  return new Workspace(config);
 }
 
 /**
