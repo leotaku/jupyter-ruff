@@ -7607,7 +7607,7 @@ __metadata:
     picomatch: ^4.0.3
     prettier: ^3.7.4
     rimraf: ^6.1.2
-    smol-toml: ^1.5.2
+    smol-toml: ^1.6.0
     typescript: ~5.5.4
     yjs: ^13.6.28
   languageName: unknown
@@ -9304,10 +9304,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"smol-toml@npm:^1.5.2":
-  version: 1.5.2
-  resolution: "smol-toml@npm:1.5.2"
-  checksum: 75b7e8482151cbe48be094de205631502d5694c2a7d968446799e8b988b4105bd6efd3b6a986baa40d9e9b47cbb2daada21a302901a618793aabd35a670f195e
+"smol-toml@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "smol-toml@npm:1.6.0"
+  checksum: e731aff4c52ff6f5401bc35f78643c30804c6957087a530d0d841b95266e6650a588cc8e59662872312d021aafcea8026372fa230cf6ba8b32a9c8f4c1a51cdf
   languageName: node
   linkType: hard
 
