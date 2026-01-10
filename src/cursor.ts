@@ -51,6 +51,7 @@ export function updateSource(editor: CodeEditor.IEditor, source: string) {
 
   editor.model.sharedModel.setSource(source);
   editor.setCursorPosition(
-    editor.getPositionAt(newOffset) ?? { line: 0, column: 0 }
+    editor.getPositionAt(newOffset) ?? { line: 0, column: 0 },
+    { scroll: false }
   );
 }
