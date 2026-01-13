@@ -1,6 +1,6 @@
 {
     "name": "jupyter-ruff",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "description": "A JupyterLab and Jupyter Notebook extension for formatting code with Ruff.",
     "keywords": [
         "jupyter",

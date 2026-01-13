@@ -2,13 +2,18 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 0.3.1
+
+- Added support for include, exclude and related settings
+- Disabled unwanted scroll when updating cursor position
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 0.3.0
 
 - Added capability to format `.py` files in addition to notebooks.
 - Fixed Ruff configuration not being loaded from `pyproject.toml` files.
 - Updated various dependencies to their latest versions.
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 0.2.0
 
