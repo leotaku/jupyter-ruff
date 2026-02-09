@@ -54,7 +54,7 @@
         "watch:labextension": "jupyter labextension watch ."
     },
     "dependencies": {
-        "@astral-sh/ruff-wasm-web": "^0.14.11",
+        "@astral-sh/ruff-wasm-web": "^0.15.0",
         "@jupyterlab/application": "^4.5.3",
         "@jupyterlab/fileeditor": "^4.5.3",
         "fastest-levenshtein": "^1.0.16",

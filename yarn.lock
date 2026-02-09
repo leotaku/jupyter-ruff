@@ -15,10 +15,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astral-sh/ruff-wasm-web@npm:^0.14.11":
-  version: 0.14.14
-  resolution: "@astral-sh/ruff-wasm-web@npm:0.14.14"
-  checksum: ac02c2884b63f2c7ecb8f18ac394103490d65b8898eddd858b45f3122d52fb3c5d2b250f053f68958e67a87abf55d8b38a557ae357b1e69384fd865593b5ca0d
+"@astral-sh/ruff-wasm-web@npm:^0.15.0":
+  version: 0.15.0
+  resolution: "@astral-sh/ruff-wasm-web@npm:0.15.0"
+  checksum: 86b75f8169a9afeba45d8b56f0a26592c01fed6b6f87b9e26f31a5cf5f0e7736076fffea5b9566f33e9b268bc3b054da23f7447dfdb00618901c26faee60616d
   languageName: node
   linkType: hard
 
@@ -7508,7 +7508,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "jupyter-ruff@workspace:."
   dependencies:
-    "@astral-sh/ruff-wasm-web": ^0.14.11
+    "@astral-sh/ruff-wasm-web": ^0.15.0
     "@jupyterlab/application": ^4.5.3
     "@jupyterlab/builder": ^4.5.3
     "@jupyterlab/fileeditor": ^4.5.3
