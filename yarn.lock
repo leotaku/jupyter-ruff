@@ -8537,7 +8537,7 @@ __metadata:
     jest: ^30.2.0
     npm-run-all2: ^8.0.4
     picomatch: ^4.0.3
-    prettier: ^3.7.4
+    prettier: ^3.8.1
     rimraf: ^6.1.2
     smol-toml: ^1.6.0
     ts-jest: ^29.4.6
@@ -9614,7 +9614,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^3.7.4":
+"prettier@npm:^3.8.1":
   version: 3.8.1
   resolution: "prettier@npm:3.8.1"
   bin:
