@@ -152,7 +152,11 @@ test('should format the editor', async ({ notebook }) => {
     );
 
     await notebook.open('WithConfig.ipynb');
+    await notebook.activate('WithConfig.ipynb');
     await notebook.selectCells(0);
+
+    // Allow some extra time for the new config to be registered
+    await notebook.page.waitForTimeout(100);
 
     await notebook.page.evaluate(async () => {
       await window.jupyterapp.commands.execute('jupyter-ruff:format-cell');
