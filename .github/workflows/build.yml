@@ -17,7 +17,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Base Setup
       uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
@@ -37,7 +37,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Base Setup
       uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
@@ -69,7 +69,7 @@ jobs:
         pip uninstall -y "jupyter_ruff" jupyterlab
 
     - name: Upload extension packages
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: extension-artifacts
         path: dist/jupyter_ruff*
@@ -87,7 +87,7 @@ jobs:
         python-version: '3.9'
         architecture: 'x64'
 
-    - uses: actions/download-artifact@v5
+    - uses: actions/download-artifact@v8
       with:
         name: extension-artifacts
 
@@ -115,13 +115,13 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Base Setup
       uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 
     - name: Download extension package
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v8
       with:
         name: extension-artifacts
 
@@ -138,7 +138,7 @@ jobs:
       run: jlpm install
 
     - name: Set up browser cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: |
           ${{ github.workspace }}/pw-browsers
@@ -155,7 +155,7 @@ jobs:
 
     - name: Upload Playwright Test report
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: jupyter_ruff-playwright-tests
         path: |
