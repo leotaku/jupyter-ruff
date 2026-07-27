@@ -24,7 +24,7 @@ jobs:
         persist-credentials: false
 
     - name: Base Setup
-      uses: jupyterlab/maintainer-tools/.github/actions/base-setup@f5d710df1483f19b666dd96aeabbe949a53642c2 # v0.34.0
+      uses: jupyterlab/maintainer-tools/.github/actions/base-setup@94b14ddfbdd1ed651e9f9343ae2409ab5c73a6a8 # v0.35.0
 
     - name: Install dependencies
       run: |
@@ -46,7 +46,7 @@ jobs:
         persist-credentials: false
 
     - name: Base Setup
-      uses: jupyterlab/maintainer-tools/.github/actions/base-setup@f5d710df1483f19b666dd96aeabbe949a53642c2 # v0.34.0
+      uses: jupyterlab/maintainer-tools/.github/actions/base-setup@94b14ddfbdd1ed651e9f9343ae2409ab5c73a6a8 # v0.35.0
 
     - name: Install dependencies
       run: |
@@ -126,7 +126,7 @@ jobs:
         persist-credentials: false
 
     - name: Base Setup
-      uses: jupyterlab/maintainer-tools/.github/actions/base-setup@f5d710df1483f19b666dd96aeabbe949a53642c2 # v0.34.0
+      uses: jupyterlab/maintainer-tools/.github/actions/base-setup@94b14ddfbdd1ed651e9f9343ae2409ab5c73a6a8 # v0.35.0
 
     - name: Download extension package
       uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
