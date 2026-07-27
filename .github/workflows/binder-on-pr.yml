@@ -1,7 +1,9 @@
 name: Binder Badge
 on:
-  pull_request_target:
+  pull_request_target: # zizmor: ignore[dangerous-triggers] does not seem to execute code, binder-link seems safely programmed
     types: [opened]
+
+permissions: {}
 
 jobs:
   binder:
