@@ -6,7 +6,10 @@
   "scripts": {
     "start": "jupyter lab --config jupyter_server_test_config.py",
     "test": "jlpm playwright test",
-    "test:update": "jlpm playwright test --update-snapshots"
+    "test:update": "jlpm playwright test --update-snapshots",
+    "docker": "docker run --net=host --rm --init -it mcr.microsoft.com/playwright:v1.62.0 /bin/sh -c 'cd /home/pwuser && npx -y playwright@1.62.0 run-server --port 3000 --host 0.0.0.0'",
+    "docker:test": "PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:3000/ jlpm playwright test",
+    "docker:test:update": "PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:3000/ jlpm playwright test --update-snapshots"
   },
   "devDependencies": {
     "@jupyterlab/galata": "^5.6.2",
