@@ -2,7 +2,7 @@ import { Contents } from '@jupyterlab/services';
 
 import { PathExt } from '@jupyterlab/coreutils';
 import { Workspace as Base, PositionEncoding } from '@astral-sh/ruff-wasm-web';
-import { isMatch } from 'picomatch';
+import pm from 'picomatch';
 import * as toml from 'smol-toml';
 
 export class Workspace extends Base {
@@ -62,8 +62,8 @@ export class Workspace extends Base {
     }
 
     // NOTE: explicit formatting always ignores the include list
-    if (explicit || isMatch(path, include as string[], { contains: true })) {
-      if (isMatch(path, exclude as string[], { contains: true })) {
+    if (explicit || pm.isMatch(path, include as string[], { contains: true })) {
+      if (pm.isMatch(path, exclude as string[], { contains: true })) {
         return false;
       }
       return true;
