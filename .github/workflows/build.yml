@@ -13,6 +13,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  dedupe:
+    name: Dedupe check
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+
+    - name: Base Setup
+      uses: jupyterlab/maintainer-tools/.github/actions/base-setup@94b14ddfbdd1ed651e9f9343ae2409ab5c73a6a8 # v0.35.0
+
+    - name: Install dependencies
+      run: |
+        set -eux
+        python -m pip install -U "jupyterlab>=4.0.0,<5"
+        jlpm install
+
+    - name: Ensure dependencies are deduplicated
+      run: jlpm dedupe --check
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
