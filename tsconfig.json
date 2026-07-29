@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
-    "composite": true,
+    "composite": false,
     "declaration": true,
     "esModuleInterop": true,
-    "incremental": true,
+    "incremental": false,
     "jsx": "react",
     "lib": ["DOM", "ES2022"],
     "module": "esnext",
