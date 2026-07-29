@@ -1,7 +1,9 @@
 name: Binder Badge
 on:
-  pull_request_target:
+  pull_request_target: # zizmor: ignore[dangerous-triggers] does not seem to execute code, binder-link seems safely programmed
     types: [opened]
+
+permissions: {}
 
 jobs:
   binder:
@@ -9,6 +11,6 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: jupyterlab/maintainer-tools/.github/actions/binder-link@v1
+      - uses: jupyterlab/maintainer-tools/.github/actions/binder-link@94b14ddfbdd1ed651e9f9343ae2409ab5c73a6a8 # v0.35.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
