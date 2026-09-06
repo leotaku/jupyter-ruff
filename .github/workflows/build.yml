@@ -29,7 +29,7 @@ jobs:
     - name: Install dependencies
       run: |
         set -eux
-        python -m pip install -U "jupyterlab>=4.0.0,<5"
+        python -m pip install -U "jupyter-builder>=1.0.0,<2"
         jlpm install
 
     - name: Ensure dependencies are deduplicated
@@ -51,7 +51,7 @@ jobs:
     - name: Install dependencies
       run: |
         set -eux
-        python -m pip install -U "jupyterlab>=4.0.0,<5"
+        python -m pip install -U "jupyter-builder>=1.0.0,<2"
         jlpm install
 
     - name: Lint the extension
@@ -73,7 +73,7 @@ jobs:
     - name: Install dependencies
       run: |
         set -eux
-        python -m pip install -U "jupyterlab>=4.0.0,<5"
+        python -m pip install -U "jupyter-builder>=1.0.0,<2"
         jlpm install
 
     - name: Test the extension
@@ -126,7 +126,7 @@ jobs:
         sudo rm -rf $(which node)
         sudo rm -rf $(which node)
 
-        pip install "jupyterlab>=4.0.0,<5" jupyter_ruff*.whl
+        pip install "jupyter-builder>=1.0.0,<2" jupyter_ruff*.whl
 
 
         jupyter labextension list
@@ -158,7 +158,7 @@ jobs:
     - name: Install the extension
       run: |
         set -eux
-        python -m pip install "jupyterlab>=4.0.0,<5" jupyter_ruff*.whl
+        python -m pip install "jupyter-builder>=1.0.0,<2" jupyter_ruff*.whl
 
     - name: Install dependencies
       working-directory: ui-tests
@@ -175,7 +175,7 @@ jobs:
         key: ${{ runner.os }}-${{ hashFiles('ui-tests/yarn.lock') }}
 
     - name: Install browser
-      run: jlpm playwright install chromium
+      run: jlpm playwright install chromium --only-shell
       working-directory: ui-tests
 
     - name: Execute integration tests
