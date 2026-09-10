@@ -203,7 +203,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         const formatted = isortAndFormat(
           notebooks.activeCell!.model.sharedModel.source
         );
-        updateSource(notebooks.activeCell!.editor!, formatted);
+        updateSource(notebooks.activeCell!.model.sharedModel, formatted);
       }
     });
 
@@ -225,7 +225,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
           }
 
           const formatted = isortAndFormat(cell.model.sharedModel.source!);
-          updateSource(cell.editor!, formatted);
+          updateSource(cell.model.sharedModel, formatted);
         }
       }
     });
@@ -245,7 +245,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
         const editor = editors.currentWidget!.content.editor;
         const formatted = isortAndFormat(editor.model.sharedModel.source);
-        updateSource(editor, formatted);
+        updateSource(editor.model.sharedModel, formatted);
       }
     });
 
@@ -292,7 +292,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
       if (autoFormatRunToggle) {
         const formatted = isortAndFormat(cell.model.sharedModel.source!);
-        updateSource(cell.editor!, formatted);
+        updateSource(cell.model.sharedModel, formatted);
       }
     });
 
@@ -313,7 +313,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
             }
 
             const formatted = isortAndFormat(cell.model.sharedModel.source!);
-            updateSource(cell.editor!, formatted);
+            updateSource(cell.model.sharedModel, formatted);
           }
         }
       });
@@ -332,7 +332,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
           const formatted = isortAndFormat(
             widget.content.model.sharedModel.source
           );
-          updateSource(widget.content.editor, formatted);
+          updateSource(widget.content.model.sharedModel, formatted);
         }
       });
     });
