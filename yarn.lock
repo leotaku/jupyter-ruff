@@ -3911,6 +3911,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/diff-match-patch@npm:^1.0.36":
+  version: 1.0.36
+  resolution: "@types/diff-match-patch@npm:1.0.36"
+  checksum: 7d7ce03422fcc3e79d0cda26e4748aeb176b75ca4b4e5f38459b112bf24660d628424bdb08d330faefa69039d19a5316e7a102a8ab68b8e294c8346790e55113
+  languageName: node
+  linkType: hard
+
 "@types/eslint-scope@npm:^3.7.7":
   version: 3.7.7
   resolution: "@types/eslint-scope@npm:3.7.7"
@@ -6006,6 +6013,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"diff-match-patch@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "diff-match-patch@npm:1.0.5"
+  checksum: 841522d01b09cccbc4e4402cf61514a81b906349a7d97b67222390f2d35cf5df277cb23959eeed212d5e46afb5629cebab41b87918672c5a05c11c73688630e3
+  languageName: node
+  linkType: hard
+
 "diff-sequences@npm:^29.6.3":
   version: 29.6.3
   resolution: "diff-sequences@npm:29.6.3"
@@ -6579,7 +6593,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fastest-levenshtein@npm:^1.0.12, fastest-levenshtein@npm:^1.0.16":
+"fastest-levenshtein@npm:^1.0.12":
   version: 1.0.16
   resolution: "fastest-levenshtein@npm:1.0.16"
   checksum: a78d44285c9e2ae2c25f3ef0f8a73f332c1247b7ea7fb4a191e6bb51aa6ee1ef0dfb3ed113616dcdc7023e18e35a8db41f61c8d88988e877cf510df8edafbc71
@@ -8484,19 +8498,21 @@ __metadata:
   resolution: "jupyter-ruff@workspace:."
   dependencies:
     "@astral-sh/ruff-wasm-web": ^0.16.0
+    "@codemirror/state": ^6.6.0
     "@eslint/js": ^10.0.1
     "@jupyterlab/application": ^4.6.2
     "@jupyterlab/builder": ^4.5.10
     "@jupyterlab/fileeditor": ^4.6.2
     "@jupyterlab/testutils": ^4.6.2
+    "@types/diff-match-patch": ^1.0.36
     "@types/jest": ^30.0.0
     "@types/json-schema": ^7.0.15
     "@types/picomatch": ^4.0.3
     "@types/react": ^18.3.31
     "@types/react-addons-linked-state-mixin": ^0.14.27
+    diff-match-patch: ^1.0.5
     eslint: ^9.39.5
     eslint-config-prettier: ^10.1.8
-    fastest-levenshtein: ^1.0.16
     jest: ^30.3.0
     npm-run-all2: ^9.0.2
     picomatch: ^4.0.5
