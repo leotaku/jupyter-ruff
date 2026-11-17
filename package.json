@@ -54,17 +54,17 @@
         "watch:labextension": "jupyter-builder watch ."
     },
     "dependencies": {
-        "@astral-sh/ruff-wasm-web": "^0.16.0",
-        "@jupyterlab/application": "^4.6.2",
-        "@jupyterlab/fileeditor": "^4.6.2",
+        "@astral-sh/ruff-wasm-web": "^0.17.5",
+        "@jupyterlab/application": "^4.6.6",
+        "@jupyterlab/fileeditor": "^4.6.6",
         "fastest-levenshtein": "^1.0.16",
-        "picomatch": "^4.0.5",
-        "smol-toml": "^1.7.1"
+        "picomatch": "^4.0.7",
+        "smol-toml": "^1.9.1"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
-        "@jupyterlab/builder": "^4.5.10",
-        "@jupyterlab/testutils": "^4.6.2",
+        "@jupyter/builder": "^1.3.0",
+        "@jupyterlab/testutils": "^4.6.6",
         "@types/jest": "^30.0.0",
         "@types/json-schema": "^7.0.15",
         "@types/picomatch": "^4.0.3",
@@ -72,14 +72,14 @@
         "@types/react-addons-linked-state-mixin": "^0.14.27",
         "eslint": "^9.39.5",
         "eslint-config-prettier": "^10.1.8",
-        "jest": "^30.3.0",
-        "npm-run-all2": "^9.0.2",
-        "prettier": "^3.9.6",
-        "rimraf": "^6.1.3",
-        "ts-jest": "^29.4.12",
+        "jest": "^30.5.2",
+        "npm-run-all2": "^9.0.4",
+        "prettier": "^3.10.1",
+        "rimraf": "^6.1.4",
+        "ts-jest": "^29.4.15",
         "typescript": "~5.5.4",
-        "typescript-eslint": "^8.65.0",
-        "yjs": "^13.6.31"
+        "typescript-eslint": "^8.73.0",
+        "yjs": "^13.6.33"
     },
     "resolutions": {
         "lib0": "0.2.111"
