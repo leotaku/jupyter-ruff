@@ -61,8 +61,10 @@ test('should format the cell', async ({ notebook }) => {
       path.join(tmpPath, filename)
     );
 
-    await notebook.open('WithConfig.ipynb');
-    await notebook.selectCells(0);
+    await Promise.all([
+      notebook.page.waitForEvent('console'),
+      notebook.open('WithConfig.ipynb').then(_ => notebook.selectCells(0))
+    ]);
 
     await notebook.page.evaluate(async () => {
       await window.jupyterapp.commands.execute('jupyter-ruff:format-cell');
@@ -99,8 +101,10 @@ test('should isort the cell', async ({ notebook }) => {
       path.join(tmpPath, filename)
     );
 
-    await notebook.open('IsortWithConfig.ipynb');
-    await notebook.selectCells(0);
+    await Promise.all([
+      notebook.page.waitForEvent('console'),
+      notebook.open('IsortWithConfig.ipynb').then(_ => notebook.selectCells(0))
+    ]);
 
     await notebook.page.evaluate(async () => {
       await window.jupyterapp.commands.execute('jupyter-ruff:format-cell');
@@ -151,12 +155,10 @@ test('should format the editor', async ({ notebook }) => {
       path.join(tmpPath, filename)
     );
 
-    await notebook.open('WithConfig.ipynb');
-    await notebook.activate('WithConfig.ipynb');
-    await notebook.selectCells(0);
-
-    // Allow some extra time for the new config to be registered
-    await notebook.page.waitForTimeout(100);
+    await Promise.all([
+      notebook.page.waitForEvent('console'),
+      notebook.open('WithConfig.ipynb').then(_ => notebook.selectCells(0))
+    ]);
 
     await notebook.page.evaluate(async () => {
       await window.jupyterapp.commands.execute('jupyter-ruff:format-cell');
@@ -196,7 +198,10 @@ test('should format the editor', async ({ notebook }) => {
     await notebook.open('formatted.py');
     const formatted = await getEditorTextInput(notebook);
 
-    await notebook.open('simple.py');
+    await Promise.all([
+      notebook.page.waitForTimeout(500),
+      notebook.open('simple.py')
+    ]);
 
     await notebook.page.evaluate(async () => {
       await window.jupyterapp.commands.execute('jupyter-ruff:format-editor');
@@ -235,8 +240,12 @@ test('should format the editor', async ({ notebook }) => {
       path.join(tmpPath, 'ruff.toml')
     );
 
-    await notebook.open('AllCells.ipynb');
-    await notebook.activate('AllCells.ipynb');
+    await Promise.all([
+      notebook.page.waitForEvent('console'),
+      notebook
+        .open('AllCells.ipynb')
+        .then(_ => notebook.activate('AllCells.ipynb'))
+    ]);
 
     await notebook.page.evaluate(async () => {
       await window.jupyterapp.commands.execute('jupyter-ruff:format-all-cells');
