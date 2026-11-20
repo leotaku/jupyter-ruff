@@ -11,5 +11,6 @@ export default defineConfig({
     url: 'http://localhost:8888/lab',
     timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI
-  }
+  },
+  retries: 3
 });
