@@ -55,7 +55,7 @@ test('should format the cell', async ({ notebook }) => {
     notebook,
     tmpPath
   }) => {
-    notebook.contents.uploadContent(
+    await notebook.contents.uploadContent(
       contents,
       'text',
       path.join(tmpPath, filename)
@@ -93,7 +93,7 @@ test('should isort the cell', async ({ notebook }) => {
   ['pyproject.toml', `[tool.ruff.lint.isort]\nfrom-first = true`]
 ].forEach(([filename, contents]) => {
   test(`should isort the cell (${filename})`, async ({ notebook, tmpPath }) => {
-    notebook.contents.uploadContent(
+    await notebook.contents.uploadContent(
       contents,
       'text',
       path.join(tmpPath, filename)
@@ -140,12 +140,12 @@ test('should format the editor', async ({ notebook }) => {
     notebook,
     tmpPath
   }) => {
-    notebook.contents.uploadContent(
+    await notebook.contents.uploadContent(
       `extend = "${filename}"`,
       'text',
       path.join(tmpPath, 'ruff.toml')
     );
-    notebook.contents.uploadContent(
+    await notebook.contents.uploadContent(
       contents,
       'text',
       path.join(tmpPath, filename)
@@ -187,7 +187,7 @@ test('should format the editor', async ({ notebook }) => {
   }) => {
     test.fail(!shouldFormat, 'should not be formatted given these settings');
 
-    notebook.contents.uploadContent(
+    await notebook.contents.uploadContent(
       contents,
       'text',
       path.join(tmpPath, 'ruff.toml')
@@ -229,7 +229,7 @@ test('should format the editor', async ({ notebook }) => {
   }) => {
     test.fail(!shouldFormat, 'should not be formatted given these settings');
 
-    notebook.contents.uploadContent(
+    await notebook.contents.uploadContent(
       contents,
       'text',
       path.join(tmpPath, 'ruff.toml')
