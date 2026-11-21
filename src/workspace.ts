@@ -169,10 +169,10 @@ function mergeTOML(
       ])
       .map(([key, value, override]) => [
         key,
-        value instanceof Object &&
+        typeof value === 'object' &&
         !(value instanceof toml.TomlDate) &&
         !(value instanceof Array) &&
-        override instanceof Object &&
+        typeof override === 'object' &&
         !(override instanceof toml.TomlDate) &&
         !(override instanceof Array)
           ? mergeTOML(value, override)
@@ -187,7 +187,7 @@ function mergeTOML(
 function configRuffSection(
   config: Record<string, toml.TomlPrimitive>
 ): Record<string, toml.TomlPrimitive> | undefined {
-  if (!((config as any)?.['tool']?.['ruff'] instanceof Object)) {
+  if (typeof ((config as any)?.['tool']?.['ruff'] !== 'object')) {
     return undefined;
   }
 
