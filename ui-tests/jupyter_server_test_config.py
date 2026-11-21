@@ -13,4 +13,4 @@ configure_jupyter_server(c)
 c.ContentsManager.allow_hidden = True
 
 # Uncomment to set server log level to debug level
-# c.ServerApp.log_level = "DEBUG"
+c.ServerApp.log_level = "CRITICAL"
