@@ -167,13 +167,13 @@ const plugin: JupyterFrontEndPlugin<void> = {
     // emit fixable diagnostics while respecting Ruff settings.
     const overrides = { lint: { select: ['I'] } };
 
-    let workspace = new Workspace(overrides);
+    let workspacePromise = Promise.resolve(new Workspace(overrides));
 
     for (const tracker of [notebooks, editors]) {
-      tracker.currentChanged.connect(async (_, panelOrWidget) => {
+      tracker.currentChanged.connect((_, panelOrWidget) => {
         if (panelOrWidget) {
-          workspace.free();
-          workspace = await workspaceFromEnvironment(
+          workspacePromise.then(workspace => workspace.free());
+          workspacePromise = workspaceFromEnvironment(
             panelOrWidget.context.path,
             app.serviceManager.contents,
             overrides
@@ -182,7 +182,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       });
     }
 
-    function isortAndFormat(text: string): string {
+    function isortAndFormat(text: string, workspace: Workspace): string {
       const isorted = isortToggle ? fix(workspace, text) : text;
       return format(workspace, isorted);
     }
@@ -193,7 +193,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
         isWidgetSelected(notebooks, app.shell) &&
         canBeFormatted(notebooks.activeCell?.model),
       isVisible: () => isWidgetSelected(notebooks, app.shell),
-      execute: function (_args: ReadonlyPartialJSONObject) {
+      execute: async function (_args: ReadonlyPartialJSONObject) {
+        const workspace = await workspacePromise;
         if (
           !workspace.should_format(notebooks.currentWidget!.context.path, true)
         ) {
@@ -201,7 +202,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
         }
 
         const formatted = isortAndFormat(
-          notebooks.activeCell!.model.sharedModel.source
+          notebooks.activeCell!.model.sharedModel.source,
+          workspace
         );
         updateSource(notebooks.activeCell!.editor!, formatted);
       }
@@ -211,7 +213,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
       label: 'Format All Cells Using Ruff',
       isEnabled: () => isWidgetSelected(notebooks, app.shell),
       isVisible: () => isWidgetSelected(notebooks, app.shell),
-      execute: function (_args: ReadonlyPartialJSONObject) {
+      execute: async function (_args: ReadonlyPartialJSONObject) {
+        const workspace = await workspacePromise;
         if (
           !workspace.should_format(notebooks.currentWidget!.context.path, true)
         ) {
@@ -224,7 +227,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
             continue;
           }
 
-          const formatted = isortAndFormat(cell.model.sharedModel.source!);
+          const formatted = isortAndFormat(
+            cell.model.sharedModel.source!,
+            workspace
+          );
           updateSource(cell.editor!, formatted);
         }
       }
@@ -236,7 +242,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
         isWidgetSelected(editors, app.shell) &&
         canBeFormatted(editors.currentWidget?.content.model),
       isVisible: () => isWidgetSelected(editors, app.shell),
-      execute: function (_args: ReadonlyPartialJSONObject) {
+      execute: async function (_args: ReadonlyPartialJSONObject) {
+        const workspace = await workspacePromise;
         if (
           !workspace.should_format(editors.currentWidget!.context.path, true)
         ) {
@@ -244,7 +251,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
         }
 
         const editor = editors.currentWidget!.content.editor;
-        const formatted = isortAndFormat(editor.model.sharedModel.source);
+        const formatted = isortAndFormat(
+          editor.model.sharedModel.source,
+          workspace
+        );
         updateSource(editor, formatted);
       }
     });
@@ -253,9 +263,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
       label: 'Reload Configuration Files for Ruff',
       isEnabled: () => true,
       isVisible: () => true,
-      execute: async function (_args: ReadonlyPartialJSONObject) {
-        workspace.free();
-        workspace = await workspaceFromEnvironment(
+      execute: function (_args: ReadonlyPartialJSONObject) {
+        workspacePromise.then(workspace => workspace.free());
+        workspacePromise = workspaceFromEnvironment(
           notebooks.currentWidget!.context.path,
           app.serviceManager.contents,
           overrides
@@ -280,7 +290,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
       category: 'ruff'
     });
 
-    NotebookActions.executionScheduled.connect((_, { notebook, cell }) => {
+    NotebookActions.executionScheduled.connect(async (_, { notebook, cell }) => {
+      const workspace = await workspacePromise;
       const panel = notebooks.find(widget => widget.content === notebook);
       if (!workspace.should_format(panel!.context.path, false)) {
         return;
@@ -291,17 +302,21 @@ const plugin: JupyterFrontEndPlugin<void> = {
       }
 
       if (autoFormatRunToggle) {
-        const formatted = isortAndFormat(cell.model.sharedModel.source!);
+        const formatted = isortAndFormat(
+          cell.model.sharedModel.source!,
+          workspace
+        );
         updateSource(cell.editor!, formatted);
       }
     });
 
     notebooks.currentChanged.connect(async (_, panel) => {
-      panel?.context.saveState.connect((_, state) => {
+      panel?.context.saveState.connect(async (_, state) => {
         if (state !== 'started') {
           return;
         }
 
+        const workspace = await workspacePromise;
         if (!workspace.should_format(panel!.context.path, false)) {
           return;
         }
@@ -312,25 +327,30 @@ const plugin: JupyterFrontEndPlugin<void> = {
               continue;
             }
 
-            const formatted = isortAndFormat(cell.model.sharedModel.source!);
+            const formatted = isortAndFormat(
+              cell.model.sharedModel.source!,
+              workspace
+            );
             updateSource(cell.editor!, formatted);
           }
         }
       });
     });
     editors.currentChanged.connect(async (_, widget) => {
-      widget?.context.saveState.connect((_, state) => {
+      widget?.context.saveState.connect(async (_, state) => {
         if (state !== 'started') {
           return;
         }
 
+        const workspace = await workspacePromise;
         if (!workspace.should_format(widget.context.path, false)) {
           return;
         }
 
         if (autoFormatSaveToggle && canBeFormatted(widget?.content.model)) {
           const formatted = isortAndFormat(
-            widget.content.model.sharedModel.source
+            widget.content.model.sharedModel.source,
+            workspace
           );
           updateSource(widget.content.editor, formatted);
         }
