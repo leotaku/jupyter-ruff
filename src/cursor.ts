@@ -1,5 +1,46 @@
 import { CodeEditor } from '@jupyterlab/codeeditor';
+import { diffLines } from 'diff';
 import { distance } from 'fastest-levenshtein';
+
+export function realignIndexApproximate(
+  oldSequence: string,
+  newSequence: string,
+  oldIndex: number
+): number {
+  const changes = diffLines(oldSequence, newSequence);
+  let [oldEndOfDiff, newEndOfDiff] = [0, 0];
+  let relevantChanges = [];
+  for (const change of changes) {
+    if (!change.removed && !change.added) {
+      if (oldEndOfDiff + change.value.length >= oldIndex) break;
+      relevantChanges = [];
+    } else {
+      relevantChanges.push(change);
+    }
+    if (!change.added) oldEndOfDiff += change.value.length;
+    if (!change.removed) newEndOfDiff += change.value.length;
+  }
+
+  const oldDiff = relevantChanges
+    .filter(change => !change.added)
+    .map(change => change.value)
+    .join('');
+  const newDiff = relevantChanges
+    .filter(change => !change.removed)
+    .map(change => change.value)
+    .join('');
+
+  const oldStartOfDiff = oldEndOfDiff - oldDiff.length;
+  const newStartOfDiff = newEndOfDiff - newDiff.length;
+  if (oldStartOfDiff >= oldIndex) {
+    return oldIndex - oldStartOfDiff + newStartOfDiff;
+  } else if (oldEndOfDiff <= oldIndex) {
+    return oldIndex - oldEndOfDiff + newEndOfDiff;
+  }
+  return (
+    realignIndex(oldDiff, newDiff, oldIndex - oldStartOfDiff) + newStartOfDiff
+  );
+}
 
 export function realignIndex(
   oldSequence: string,
@@ -43,7 +84,7 @@ export function realignIndex(
 
 export function updateSource(editor: CodeEditor.IEditor, source: string) {
   const oldOffset = editor.getOffsetAt(editor.getCursorPosition());
-  const newOffset = realignIndex(
+  const newOffset = realignIndexApproximate(
     editor.model.sharedModel.source,
     source,
     oldOffset
