@@ -290,25 +290,27 @@ const plugin: JupyterFrontEndPlugin<void> = {
       category: 'ruff'
     });
 
-    NotebookActions.executionScheduled.connect(async (_, { notebook, cell }) => {
-      const workspace = await workspacePromise;
-      const panel = notebooks.find(widget => widget.content === notebook);
-      if (!workspace.should_format(panel!.context.path, false)) {
-        return;
-      }
+    NotebookActions.executionScheduled.connect(
+      async (_, { notebook, cell }) => {
+        const workspace = await workspacePromise;
+        const panel = notebooks.find(widget => widget.content === notebook);
+        if (!workspace.should_format(panel!.context.path, false)) {
+          return;
+        }
 
-      if (!canBeFormatted(cell.model)) {
-        return;
-      }
+        if (!canBeFormatted(cell.model)) {
+          return;
+        }
 
-      if (autoFormatRunToggle) {
-        const formatted = isortAndFormat(
-          cell.model.sharedModel.source!,
-          workspace
-        );
-        updateSource(cell.editor!, formatted);
+        if (autoFormatRunToggle) {
+          const formatted = isortAndFormat(
+            cell.model.sharedModel.source!,
+            workspace
+          );
+          updateSource(cell.editor!, formatted);
+        }
       }
-    });
+    );
 
     notebooks.currentChanged.connect(async (_, panel) => {
       panel?.context.saveState.connect(async (_, state) => {
