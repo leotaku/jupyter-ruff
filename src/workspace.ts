@@ -6,9 +6,9 @@ import pm from 'picomatch';
 import * as toml from 'smol-toml';
 
 export class Workspace extends Base {
-  options: Record<string, toml.TomlPrimitive>;
+  options: toml.TomlTable;
 
-  constructor(options: Record<string, toml.TomlPrimitive>) {
+  constructor(options: toml.TomlTable) {
     super(options, PositionEncoding.Utf16);
     this.options = options;
   }
@@ -81,7 +81,7 @@ export class Workspace extends Base {
 export async function workspaceFromEnvironment(
   path: string,
   fs: Contents.IManager,
-  overrides?: Record<string, toml.TomlPrimitive>
+  overrides?: toml.TomlTable
 ): Promise<Workspace> {
   let directory = path;
   do {
@@ -127,7 +127,7 @@ export async function workspaceFromEnvironment(
  * See: https://docs.astral.sh/ruff/settings/#extend
  */
 async function workspaceFromConfig(
-  config: Record<string, toml.TomlPrimitive>,
+  config: toml.TomlTable,
   resolveBase: string,
   fs: Contents.IManager
 ): Promise<Workspace> {
@@ -157,9 +157,9 @@ async function workspaceFromConfig(
  * Recursively merges two TOML config objects.
  */
 function mergeTOML(
-  base: Record<string, toml.TomlPrimitive>,
-  overrides: Record<string, toml.TomlPrimitive>
-): Record<string, toml.TomlPrimitive> {
+  base: toml.TomlTable,
+  overrides: toml.TomlTable
+): toml.TomlTable {
   return Object.fromEntries(
     Object.keys({ ...base, ...overrides })
       .map((key, _): [string, toml.TomlPrimitive, toml.TomlPrimitive] => [
@@ -169,12 +169,7 @@ function mergeTOML(
       ])
       .map(([key, value, override]) => [
         key,
-        typeof value === 'object' &&
-        !(value instanceof toml.TomlDate) &&
-        !(value instanceof Array) &&
-        typeof override === 'object' &&
-        !(override instanceof toml.TomlDate) &&
-        !(override instanceof Array)
+        isTOMLTable(value) && isTOMLTable(override)
           ? mergeTOML(value, override)
           : (override ?? value)
       ])
@@ -184,12 +179,21 @@ function mergeTOML(
 /**
  * Extracts the Ruff config section from a pyproject-like TOML config.
  */
-function configRuffSection(
-  config: Record<string, toml.TomlPrimitive>
-): Record<string, toml.TomlPrimitive> | undefined {
-  if (typeof ((config as any)?.['tool']?.['ruff'] !== 'object')) {
+function configRuffSection(config: toml.TomlTable): toml.TomlTable | undefined {
+  if (!isTOMLTable((config as any)?.['tool']?.['ruff'])) {
     return undefined;
   }
 
   return (config as any)['tool']['ruff'];
+}
+
+/**
+ * Tests if a TOML config value is a table.
+ */
+function isTOMLTable(value: toml.TomlValue): value is toml.TomlTable {
+  return (
+    typeof value === 'object' &&
+    !(value instanceof toml.TomlDate) &&
+    !(value instanceof Array)
+  );
 }
