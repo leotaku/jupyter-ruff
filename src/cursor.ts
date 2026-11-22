@@ -12,14 +12,20 @@ export function realignIndexApproximate(
   let [newStartOfDiff, newEndOfDiff] = [0, 0];
   for (const change of changes) {
     if (!change.removed && !change.added) {
-      if (oldEndOfDiff + change.value.length >= oldIndex) break;
+      if (oldEndOfDiff + change.value.length >= oldIndex) {
+        break;
+      }
       [oldStartOfDiff, newStartOfDiff] = [
         oldEndOfDiff + change.value.length,
         newEndOfDiff + change.value.length
       ];
     }
-    if (!change.added) oldEndOfDiff += change.value.length;
-    if (!change.removed) newEndOfDiff += change.value.length;
+    if (!change.added) {
+      oldEndOfDiff += change.value.length;
+    }
+    if (!change.removed) {
+      newEndOfDiff += change.value.length;
+    }
   }
 
   if (oldStartOfDiff >= oldIndex) {
