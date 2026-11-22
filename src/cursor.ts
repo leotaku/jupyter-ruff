@@ -8,37 +8,31 @@ export function realignIndexApproximate(
   oldIndex: number
 ): number {
   const changes = diffLines(oldSequence, newSequence);
-  let [oldEndOfDiff, newEndOfDiff] = [0, 0];
-  let relevantChanges = [];
+  let [oldStartOfDiff, oldEndOfDiff] = [0, 0];
+  let [newStartOfDiff, newEndOfDiff] = [0, 0];
   for (const change of changes) {
     if (!change.removed && !change.added) {
       if (oldEndOfDiff + change.value.length >= oldIndex) break;
-      relevantChanges = [];
-    } else {
-      relevantChanges.push(change);
+      [oldStartOfDiff, newStartOfDiff] = [
+        oldEndOfDiff + change.value.length,
+        newEndOfDiff + change.value.length
+      ];
     }
     if (!change.added) oldEndOfDiff += change.value.length;
     if (!change.removed) newEndOfDiff += change.value.length;
   }
 
-  const oldDiff = relevantChanges
-    .filter(change => !change.added)
-    .map(change => change.value)
-    .join('');
-  const newDiff = relevantChanges
-    .filter(change => !change.removed)
-    .map(change => change.value)
-    .join('');
-
-  const oldStartOfDiff = oldEndOfDiff - oldDiff.length;
-  const newStartOfDiff = newEndOfDiff - newDiff.length;
   if (oldStartOfDiff >= oldIndex) {
     return oldIndex - oldStartOfDiff + newStartOfDiff;
   } else if (oldEndOfDiff <= oldIndex) {
     return oldIndex - oldEndOfDiff + newEndOfDiff;
   }
   return (
-    realignIndex(oldDiff, newDiff, oldIndex - oldStartOfDiff) + newStartOfDiff
+    realignIndex(
+      oldSequence.slice(oldStartOfDiff, oldEndOfDiff),
+      newSequence.slice(newStartOfDiff, newEndOfDiff),
+      oldIndex - oldStartOfDiff
+    ) + newStartOfDiff
   );
 }
 
