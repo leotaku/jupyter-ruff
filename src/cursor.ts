@@ -1,44 +1,49 @@
 import { CodeEditor } from '@jupyterlab/codeeditor';
-import { diffLines } from 'diff';
+import { ChangeObject, diffLines } from 'diff';
 import { distance } from 'fastest-levenshtein';
 
-export function realignIndexApproximate(
-  oldSequence: string,
-  newSequence: string,
+export function realignIndexFromChanges(
+  changes: ChangeObject<string>[],
   oldIndex: number
 ): number {
-  const changes = diffLines(oldSequence, newSequence);
-  let [oldStartOfDiff, oldEndOfDiff] = [0, 0];
-  let [newStartOfDiff, newEndOfDiff] = [0, 0];
+  let [oldEndOfChange, newEndOfChange] = [0, 0];
+  let relevantChanges = [];
   for (const change of changes) {
     if (!change.removed && !change.added) {
-      if (oldEndOfDiff + change.value.length >= oldIndex) {
+      if (oldEndOfChange + change.value.length >= oldIndex) {
         break;
       }
-      [oldStartOfDiff, newStartOfDiff] = [
-        oldEndOfDiff + change.value.length,
-        newEndOfDiff + change.value.length
-      ];
+      relevantChanges = [];
+    } else {
+      relevantChanges.push(change);
     }
     if (!change.added) {
-      oldEndOfDiff += change.value.length;
+      oldEndOfChange += change.value.length;
     }
     if (!change.removed) {
-      newEndOfDiff += change.value.length;
+      newEndOfChange += change.value.length;
     }
   }
 
-  if (oldStartOfDiff >= oldIndex) {
-    return oldIndex - oldStartOfDiff + newStartOfDiff;
-  } else if (oldEndOfDiff <= oldIndex) {
-    return oldIndex - oldEndOfDiff + newEndOfDiff;
+  const oldChangeText = relevantChanges
+    .filter(change => !change.added)
+    .map(change => change.value)
+    .join('');
+  const newChangeText = relevantChanges
+    .filter(change => !change.removed)
+    .map(change => change.value)
+    .join('');
+
+  const oldStartOfChange = oldEndOfChange - oldChangeText.length;
+  const newStartOfChange = newEndOfChange - newChangeText.length;
+  if (oldStartOfChange >= oldIndex) {
+    return oldIndex - oldStartOfChange + newStartOfChange;
+  } else if (oldEndOfChange <= oldIndex) {
+    return oldIndex - oldEndOfChange + newEndOfChange;
   }
   return (
-    realignIndex(
-      oldSequence.slice(oldStartOfDiff, oldEndOfDiff),
-      newSequence.slice(newStartOfDiff, newEndOfDiff),
-      oldIndex - oldStartOfDiff
-    ) + newStartOfDiff
+    realignIndex(oldChangeText, newChangeText, oldIndex - oldStartOfChange) +
+    newStartOfChange
   );
 }
 
@@ -83,14 +88,32 @@ export function realignIndex(
 }
 
 export function updateSource(editor: CodeEditor.IEditor, source: string) {
+  const changes = diffLines(editor.model.sharedModel.source, source);
   const oldOffset = editor.getOffsetAt(editor.getCursorPosition());
-  const newOffset = realignIndexApproximate(
-    editor.model.sharedModel.source,
-    source,
-    oldOffset
-  );
+  const newOffset = realignIndexFromChanges(changes, oldOffset);
 
-  editor.model.sharedModel.setSource(source);
+  let insertionPoint = 0;
+  editor.model.sharedModel.transact(() => {
+    for (const change of changes) {
+      if (change.removed) {
+        editor.model.sharedModel.updateSource(
+          insertionPoint,
+          insertionPoint + change.value.length
+        );
+      }
+      if (change.added) {
+        editor.model.sharedModel.updateSource(
+          insertionPoint,
+          insertionPoint,
+          change.value
+        );
+      }
+      if (!change.removed) {
+        insertionPoint += change.value.length;
+      }
+    }
+  });
+
   editor.setCursorPosition(
     editor.getPositionAt(newOffset) ?? { line: 0, column: 0 },
     { scroll: false }
