@@ -6092,6 +6092,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"diff@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "diff@npm:9.0.0"
+  checksum: 8280d999e21de63cceee6cee95c3355a04e8303dd09aa1b9f6e18a4190ee9953dfc873e72df1e438a0845fbbed12138b2264fef256f2d21652dc953037f4ae3a
+  languageName: node
+  linkType: hard
+
 "dom-serializer@npm:^2.0.0":
   version: 2.0.0
   resolution: "dom-serializer@npm:2.0.0"
@@ -8495,6 +8502,7 @@ __metadata:
     "@types/picomatch": ^4.0.3
     "@types/react": ^18.3.31
     "@types/react-addons-linked-state-mixin": ^0.14.27
+    diff: ^9.0.0
     eslint: ^9.39.5
     eslint-config-prettier: ^10.1.8
     fastest-levenshtein: ^1.0.16
